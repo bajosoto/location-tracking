@@ -25,7 +25,7 @@ import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
 
-import com.example.example2.R;
+import com.example.administrator.smartphonesensing.R;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -34,11 +34,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Smart Phone Sensing Example 2 - 2017. Working with sensors.
+ * Smart Phone Sensing Data Acquisition Code
  */
 public class MainActivity extends Activity implements SensorEventListener {
 
-    private static final String DIR_NAME = "SPS";
+    private static final String DIR_NAME = "SmartPhoneSensing";
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
     /**
