@@ -21,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
@@ -31,13 +32,23 @@ import com.example.administrator.smartphonesensing.R;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Vector;
 
 /**
  * Smart Phone Sensing Data Acquisition Code
  */
 public class MainActivity extends Activity implements SensorEventListener {
+
+    /* The number of access points we are taking into consideration */
+    private static final int numSSIDs = 5;
+    private static Vector<ReferencePoint> refPoints = new Vector();
+    private static String scanReqSender = "";
 
     private static final String DIR_NAME = "SmartPhoneSensing";
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
@@ -74,19 +85,42 @@ public class MainActivity extends Activity implements SensorEventListener {
      */
     private float aZ = 0;
 
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+    String timestamp = simpleDateFormat.format(new Date());
+
+
     /**
      * Text fields to show the sensor values.
      */
     private TextView currentX, currentY, currentZ, titleAcc, textRssi;
-    static int count =0;
+    private EditText tbRoomName;
 
-    Button buttonRssi;
+    Button buttonRssi, buttonLocation;
 
     private File root, dir;
     private String logFileNameAcc, logFileNameRSSI;
     private List<ScanResult> scanResults;
 
     //AppCompatActivity appCompatActivity;
+
+    public String knn(ReferencePoint refPoint, Vector<ReferencePoint> referencePoints) {
+        int smallestDistance = 0;
+        String label = "some place, somewhere...";
+
+        for (ReferencePoint rp : referencePoints){
+            textRssi.setText("Comparing" + refPoint.toString() + "/n With: " + rp.toString());
+            int distance = 0;
+            for (String key : refPoint.accessPoints.keySet()){
+                distance += Math.pow((refPoint.getApDistance(key) - rp.getApDistance(key)), 2);
+            }
+            distance = (int) Math.sqrt(distance);
+            if(smallestDistance == 0 || smallestDistance > distance) {
+                smallestDistance = distance;
+                label = rp.label;
+            }
+        }
+        return label;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -120,6 +154,11 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         // Create the button
         buttonRssi = (Button) findViewById(R.id.buttonRSSI);
+        buttonLocation = (Button) findViewById(R.id.buttonLocation);
+        tbRoomName = (EditText) findViewById(R.id.tbRoomName);
+
+        clearFile(logFileNameRSSI, timestamp);
+
 
         // Set the sensor manager
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -145,17 +184,39 @@ public class MainActivity extends Activity implements SensorEventListener {
             @Override
             public void onReceive(Context context, Intent intent) {
                 scanResults = wifiManager.getScanResults();
-                String line = "";
+                Collections.sort(scanResults, new Comparator<ScanResult>() {
+                    @Override
+                    public int compare(ScanResult lhs, ScanResult rhs) {
+                        // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+                        return lhs.level > rhs.level ? -1 : (lhs.level < rhs.level ) ? 1 : 0;
+                    }
+                });
+
+                int foundAPs = scanResults.size();
+                scanResults = scanResults.subList(0, foundAPs >= numSSIDs ? numSSIDs : foundAPs);
+                //String line = "";
+
+                ReferencePoint point = new ReferencePoint(tbRoomName.getText().toString());
+
                 for (ScanResult s : scanResults)
                 {
-                    line += s.BSSID + "\t" + s.level + "\n";
+                    //line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + s.level + "\n";
+                    point.addAP(s.BSSID, s.level);
                 }
-                textRssi.setText(line);
-                writeToFile(logFileNameRSSI, line, true);
-                writeToFile(logFileNameRSSI, "--------------------------------------------", true);
-                if(count%4==0)
-                    writeToFile(logFileNameRSSI, "\n#######################################\n", true);
-                count++;
+
+                //textRssi.setText(point.toString());
+                if (scanReqSender == "rssi"){
+                    refPoints.addElement(point);
+                    scanReqSender = "";
+                    textRssi.setText("Acquired!");
+                } else if (scanReqSender == "location") {
+                    textRssi.setText("You are in " + knn(point, refPoints));
+                    scanReqSender = "";
+                }
+
+
+                //writeToFile(logFileNameRSSI, line, true);
+                //writeToFile(logFileNameRSSI, "--------------------------------------------\n", true);
             }
         }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
@@ -163,16 +224,19 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonRssi.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // get the wifi info.
-                /*wifiInfo = wifiManager.getConnectionInfo();
-                // update the text.
-                textRssi.setText("\n\tSSID = " + wifiInfo.getSSID()
-                        + "\n\tRSSI = " + wifiInfo.getRssi()
-                        + "\n\tBSSID = " + wifiInfo.getBSSID());
-                //String line = "";
-                //line += wifiInfo.getBSSID() + "\t" + wifiInfo.getRssi() + "\n";
-                //writeToFile(logFileNameRSSI, line, true);*/
+                scanReqSender = "rssi";
+                textRssi.setText("Acquiring...");
+                wifiManager.startScan();
+            }
+        });
 
+        // Create a click listener for our button.
+        buttonLocation.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // TODO: Add some way to identify which button is requesting the scan
+                scanReqSender = "location";
+                textRssi.setText("Finding your location...");
                 wifiManager.startScan();
             }
         });
@@ -296,4 +360,24 @@ public class MainActivity extends Activity implements SensorEventListener {
             return null;
         }
     }
+
+    private File clearFile(String fileName, String date)
+    {
+        if (!isExternalStorageWritable())
+            return null;
+        File file = new File(dir, fileName);
+        FileWriter fileWriter;
+        try {
+            fileWriter = new FileWriter(file);
+            fileWriter.write(timestamp);
+            fileWriter.write("\n\n");
+            fileWriter.flush();
+            fileWriter.close();
+            return file;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
+
