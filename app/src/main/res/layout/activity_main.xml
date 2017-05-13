@@ -37,7 +37,7 @@
     <TextView
         android:id="@+id/textRSSI"
         android:layout_width="300dp"
-        android:layout_height="45dp"
+        android:layout_height="28dp"
         android:text="" />
 
     <LinearLayout
@@ -77,7 +77,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="#ffffff"
         android:gravity="center|top"
         android:orientation="horizontal" >
@@ -160,4 +160,31 @@
                 android:textSize="15dp" />
         </LinearLayout>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:orientation="horizontal"
+        android:gravity="center|center"
+        android:weightSum="1">
+        <Button
+            android:id="@+id/buttonWalk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Walk" />
+        <Button
+            android:id="@+id/buttonStand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Stand" />
+        <Button
+            android:id="@+id/buttonWalkOrStand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WTF am I doing?" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/textAcc"
+        android:layout_width="300dp"
+        android:layout_height="28dp"
+        android:text="" />
 </LinearLayout>

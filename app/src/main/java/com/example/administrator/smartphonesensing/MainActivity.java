@@ -26,8 +26,6 @@ import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
 
-import com.example.administrator.smartphonesensing.R;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -46,8 +44,17 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     /* The number of access points we are taking into consideration */
     private static final int numSSIDs = 5;
-    private static Vector<ReferencePoint> refPoints = new Vector();
     private static String scanReqSender = "";
+    private static Vector<RSSPoint> refPoints = new Vector();
+    private List<ScanResult> scanResults;
+
+    private static final int numACCSamples = 80;
+    private static int currAccSample = 0;
+    private static String accReqSender = "";
+    private static Vector<ACCPoint> accPoints = new Vector();
+    private List<Float> xResults = new Vector();
+    private List<Float> yResults = new Vector();
+    private List<Float> zResults = new Vector();
 
     private static final String DIR_NAME = "SmartPhoneSensing";
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
@@ -88,22 +95,22 @@ public class MainActivity extends Activity implements SensorEventListener {
     /**
      * Text fields to show the sensor values.
      */
-    private TextView currentX, currentY, currentZ, titleAcc, textRssi;
+    private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc;
     private EditText tbRoomName;
 
-    Button buttonRssi, buttonLocation;
+    Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand;
 
     private File root, dir;
     private String logFileNameAcc, logFileNameRSSI;
-    private List<ScanResult> scanResults;
+
 
     //AppCompatActivity appCompatActivity;
 
-    public String knn(ReferencePoint refPoint, Vector<ReferencePoint> referencePoints) {
+    public String knn(RSSPoint refPoint, Vector<RSSPoint> RSSPoints) {
         int smallestDistance = 0;
         String label = "some place, somewhere...";
 
-        for (ReferencePoint rp : referencePoints){
+        for (RSSPoint rp : RSSPoints){
             textRssi.setText("Comparing" + refPoint.toString() + "/n With: " + rp.toString());
             int distance = 0;
             for (String key : refPoint.accessPoints.keySet()){
@@ -113,6 +120,26 @@ public class MainActivity extends Activity implements SensorEventListener {
             if(smallestDistance == 0 || smallestDistance > distance) {
                 smallestDistance = distance;
                 label = rp.label;
+            }
+        }
+        return label;
+    }
+
+    public String knn(ACCPoint refPoint, Vector<ACCPoint> ACCPoints) {
+        int smallestDistance = 0;
+        String label = "some place, somewhere...";
+
+        for (ACCPoint ap : ACCPoints){
+
+            int distance = 0;
+            distance += Math.pow((refPoint.getX() - ap.getX()), 2);
+            distance += Math.pow((refPoint.getY() - ap.getY()), 2);
+            distance += Math.pow((refPoint.getZ() - ap.getZ()), 2);
+            distance = (int) Math.sqrt(distance);
+
+            if(smallestDistance == 0 || smallestDistance > distance) {
+                smallestDistance = distance;
+                label = ap.label;
             }
         }
         return label;
@@ -146,14 +173,19 @@ public class MainActivity extends Activity implements SensorEventListener {
         currentZ = (TextView) findViewById(R.id.currentZ);
         titleAcc = (TextView) findViewById(R.id.titleAcc);
         textRssi = (TextView) findViewById(R.id.textRSSI);
+        textAcc = (TextView) findViewById(R.id.textAcc);
 
-        // Create the button
+        // Create the buttons
         buttonRssi = (Button) findViewById(R.id.buttonRSSI);
         buttonLocation = (Button) findViewById(R.id.buttonLocation);
+        buttonWalk = (Button) findViewById(R.id.buttonWalk);
+        buttonStand = (Button) findViewById(R.id.buttonStand);
+        buttonWalkOrStand = (Button) findViewById(R.id.buttonWalkOrStand);
+
         tbRoomName = (EditText) findViewById(R.id.tbRoomName);
 
+        clearFile(logFileNameAcc, timestamp);
         clearFile(logFileNameRSSI, timestamp);
-
 
         // Set the sensor manager
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -161,12 +193,11 @@ public class MainActivity extends Activity implements SensorEventListener {
         // if the default accelerometer exists
         if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
             // set accelerometer
-            accelerometer = sensorManager
-                    .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             // register 'this' as a listener that updates values. Each time a sensor value changes,
             // the method 'onSensorChanged()' is called.
             sensorManager.registerListener(this, accelerometer,
-                    SensorManager.SENSOR_DELAY_NORMAL);
+                    SensorManager.SENSOR_DELAY_GAME);
         } else {
             // No accelerometer!
         }
@@ -191,7 +222,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 scanResults = scanResults.subList(0, foundAPs >= numSSIDs ? numSSIDs : foundAPs);
                 //String line = "";
 
-                ReferencePoint point = new ReferencePoint(tbRoomName.getText().toString());
+                RSSPoint point = new RSSPoint(tbRoomName.getText().toString());
 
                 for (ScanResult s : scanResults)
                 {
@@ -229,10 +260,36 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonLocation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Add some way to identify which button is requesting the scan
                 scanReqSender = "location";
                 textRssi.setText("Finding your location...");
                 wifiManager.startScan();
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonWalk.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                accReqSender = "walking";
+                textAcc.setText("Start walking...");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonStand.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                accReqSender = "standing";
+                textAcc.setText("Stand still...");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonWalkOrStand.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                accReqSender = "walkorstand";
+                textAcc.setText("Tracking your movement...");
             }
         });
 
@@ -329,8 +386,65 @@ public class MainActivity extends Activity implements SensorEventListener {
             titleAcc.setTextColor(Color.GREEN);
         }
 
-        String line = String.format(Locale.getDefault(), "%f\t%f\t%f\n", aX, aY, aZ);
-        writeToFile(logFileNameAcc, line, true);
+        //String line = String.format(Locale.getDefault(), "%f\t%f\t%f\n", aX, aY, aZ);
+        //writeToFile(logFileNameAcc, line, true);
+
+        if (!accReqSender.equals("")) {
+            if (currAccSample == 0) {        // First element is stored unfiltered
+                xResults.add(aX);
+                yResults.add(aY);
+                zResults.add(aZ);
+            } else {                        // Remaining elements are smoothed
+                xResults.add(0.5f * aX + 0.5f * xResults.get(currAccSample - 1));
+                yResults.add(0.5f * aY + 0.5f * yResults.get(currAccSample - 1));
+                zResults.add(0.5f * aZ + 0.5f * zResults.get(currAccSample - 1));
+            }
+            currAccSample++;
+            if (currAccSample == numACCSamples) {   // If this is the last sample in the window
+                // Sort Lists
+                Collections.sort(xResults, new Comparator<Float>() {
+                    @Override
+                    public int compare(Float lhs, Float rhs) {
+                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                    }
+                });
+                Collections.sort(yResults, new Comparator<Float>() {
+                    @Override
+                    public int compare(Float lhs, Float rhs) {
+                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                    }
+                });
+                Collections.sort(zResults, new Comparator<Float>() {
+                    @Override
+                    public int compare(Float lhs, Float rhs) {
+                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                    }
+                });
+
+                // Calculate peak to peak values
+                Float newX = Math.abs(xResults.get(0) - xResults.get(xResults.size() - 1));
+                Float newY = Math.abs(yResults.get(0) - yResults.get(yResults.size() - 1));
+                Float newZ = Math.abs(zResults.get(0) - zResults.get(zResults.size() - 1));
+
+                // Create new ACCPoint instance
+                ACCPoint newAccPoint = new ACCPoint(accReqSender, newX, newY, newZ);
+
+                if (accReqSender.equals("walkorstand")) {
+                    // Do KNN and update label
+                    textAcc.setText("You are " + knn(newAccPoint, accPoints));
+                } else {
+                    // Add new trained data to Vector
+                    textAcc.setText("Done!");
+                    accPoints.add(newAccPoint);
+                }
+
+                currAccSample = 0;
+                xResults.clear();
+                yResults.clear();
+                zResults.clear();
+                accReqSender = "";
+            }
+        }
     }
 
     private File writeToFile(String fileName, String line, boolean append)

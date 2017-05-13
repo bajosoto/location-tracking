@@ -7,16 +7,17 @@ import java.util.Map;
  * Created by Sergio on 5/12/17.
  */
 
-public class ReferencePoint {
+public class RSSPoint {
     String label;
     Map<String, Integer> accessPoints;
 
-    public ReferencePoint(String lbl) {
+    public RSSPoint(String lbl) {
         this.label = lbl;
         this.accessPoints = new HashMap<String, Integer>();
     }
 
     public void addAP(String ssid, int rss) {
+
         this.accessPoints.put(ssid, rss);
     }
 

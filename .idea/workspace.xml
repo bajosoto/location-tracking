@@ -43,8 +43,8 @@
       <file leaf-file-name="activity_main.xml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
-              <caret line="36" column="4" selection-start-line="30" selection-start-column="29" selection-end-line="30" selection-end-column="43" />
+            <state relative-caret-position="2660">
+              <caret line="185" column="32" selection-start-line="185" selection-start-column="32" selection-end-line="185" selection-end-column="32" />
               <folding />
             </state>
           </provider>
@@ -53,11 +53,49 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="false">
+      <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="109" column="95" selection-start-line="109" selection-start-column="28" selection-end-line="109" selection-end-column="95" />
+            <state relative-caret-position="-701">
+              <caret line="50" column="46" selection-start-line="50" selection-start-column="46" selection-end-line="50" selection-end-column="46" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#14975#15202#0" expanded="true" />
+                <element signature="e#15201#15202#0" expanded="true" />
+                <element signature="e#15248#15475#0" expanded="true" />
+                <element signature="e#15474#15475#0" expanded="true" />
+                <element signature="e#15521#15748#0" expanded="true" />
+                <element signature="e#15747#15748#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ScanResult.java" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/ScanResult.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="180">
+              <caret line="30" column="13" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SensorManager.java" pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/hardware/SensorManager.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="251">
+              <caret line="317" column="45" selection-start-line="317" selection-start-column="28" selection-end-line="317" selection-end-column="45" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RSSPoint.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/RSSPoint.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="300">
+              <caret line="20" column="8" selection-start-line="20" selection-start-column="8" selection-end-line="20" selection-end-column="8" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -65,13 +103,19 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ReferencePoint.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ReferencePoint.java">
+      <file leaf-file-name="ACCPoint.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ACCPoint.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="300">
-              <caret line="22" column="28" selection-start-line="22" selection-start-column="15" selection-end-line="22" selection-end-column="28" />
+            <state relative-caret-position="150">
+              <caret line="10" column="4" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="4" />
               <folding>
                 <element signature="imports" expanded="true" />
+                <element signature="e#453#454#0" expanded="true" />
+                <element signature="e#486#487#0" expanded="true" />
+                <element signature="e#513#514#0" expanded="true" />
+                <element signature="e#546#547#0" expanded="true" />
+                <element signature="e#573#574#0" expanded="true" />
+                <element signature="e#606#607#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -94,50 +138,9 @@
       <file leaf-file-name="WifiManager.java" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/WifiManager.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18705">
+            <state relative-caret-position="15">
               <caret line="1308" column="26" selection-start-line="1308" selection-start-column="16" selection-end-line="1308" selection-end-column="26" />
-              <folding>
-                <element signature="e#0#98304#0" expanded="false" />
-                <element signature="imports" expanded="false" />
-                <element signature="e#40173#40174#0" expanded="false" />
-                <element signature="e#40237#40238#0" expanded="false" />
-                <element signature="e#40366#40367#0" expanded="false" />
-                <element signature="e#40431#40432#0" expanded="false" />
-                <element signature="e#40561#40562#0" expanded="false" />
-                <element signature="e#40620#40621#0" expanded="false" />
-                <element signature="e#41006#41007#0" expanded="false" />
-                <element signature="e#41069#41070#0" expanded="false" />
-                <element signature="e#41232#41233#0" expanded="false" />
-                <element signature="e#41291#41292#0" expanded="false" />
-                <element signature="e#41659#41660#0" expanded="false" />
-                <element signature="e#41723#41724#0" expanded="false" />
-                <element signature="e#42285#42286#0" expanded="false" />
-                <element signature="e#42345#42346#0" expanded="false" />
-                <element signature="e#44760#44761#0" expanded="false" />
-                <element signature="e#44788#44789#0" expanded="false" />
-                <element signature="e#45099#45100#0" expanded="false" />
-                <element signature="e#45127#45128#0" expanded="false" />
-                <element signature="e#45507#45508#0" expanded="false" />
-                <element signature="e#45534#45535#0" expanded="false" />
-                <element signature="e#51925#51926#0" expanded="false" />
-                <element signature="e#51984#51985#0" expanded="false" />
-                <element signature="e#53606#53607#0" expanded="false" />
-                <element signature="e#53642#53643#0" expanded="false" />
-                <element signature="e#55161#55162#0" expanded="false" />
-                <element signature="e#55225#55226#0" expanded="false" />
-                <element signature="e#64742#64743#0" expanded="false" />
-                <element signature="e#64779#64780#0" expanded="false" />
-                <element signature="e#82485#82486#0" expanded="false" />
-                <element signature="e#82533#82534#0" expanded="false" />
-                <element signature="e#85715#85716#0" expanded="false" />
-                <element signature="e#85765#85766#0" expanded="false" />
-                <element signature="e#86295#86296#0" expanded="false" />
-                <element signature="e#86351#86352#0" expanded="false" />
-                <element signature="e#86938#86939#0" expanded="false" />
-                <element signature="e#86983#86984#0" expanded="false" />
-                <element signature="e#92524#92525#0" expanded="false" />
-                <element signature="e#92572#92573#0" expanded="false" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -1943,9 +1946,12 @@
         <option value="$PROJECT_DIR$/app/build/generated/source/r/debug/com/example/administrator/smartphonesensing/R.java" />
         <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/Room.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ReferencePoint.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ReferencePoint.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/AccelWindowPoint.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/RSSPoint.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ACCPoint.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java" />
       </list>
     </option>
   </component>
@@ -2003,6 +2009,28 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="res" />
               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidResFolderNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="values" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidResFolderTypeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="location-tracking" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="app" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="res" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidResFolderNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="mipmap" />
+              <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidResFolderTypeNode" />
             </PATH_ELEMENT>
           </PATH>
           <PATH>
@@ -2417,7 +2445,7 @@
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3286119" sideWeight="0.503231" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28093305" sideWeight="0.4454054" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28093305" sideWeight="0.4454054" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42225772" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296146" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -2474,11 +2502,17 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ReferencePoint.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/RSSPoint.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="150">
           <caret line="11" column="37" selection-start-line="11" selection-start-column="25" selection-end-line="11" selection-end-column="37" />
@@ -2504,48 +2538,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="19620">
           <caret line="1308" column="26" selection-start-line="1308" selection-start-column="16" selection-end-line="1308" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#98304#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#40173#40174#0" expanded="false" />
-            <element signature="e#40237#40238#0" expanded="false" />
-            <element signature="e#40366#40367#0" expanded="false" />
-            <element signature="e#40431#40432#0" expanded="false" />
-            <element signature="e#40561#40562#0" expanded="false" />
-            <element signature="e#40620#40621#0" expanded="false" />
-            <element signature="e#41006#41007#0" expanded="false" />
-            <element signature="e#41069#41070#0" expanded="false" />
-            <element signature="e#41232#41233#0" expanded="false" />
-            <element signature="e#41291#41292#0" expanded="false" />
-            <element signature="e#41659#41660#0" expanded="false" />
-            <element signature="e#41723#41724#0" expanded="false" />
-            <element signature="e#42285#42286#0" expanded="false" />
-            <element signature="e#42345#42346#0" expanded="false" />
-            <element signature="e#44760#44761#0" expanded="false" />
-            <element signature="e#44788#44789#0" expanded="false" />
-            <element signature="e#45099#45100#0" expanded="false" />
-            <element signature="e#45127#45128#0" expanded="false" />
-            <element signature="e#45507#45508#0" expanded="false" />
-            <element signature="e#45534#45535#0" expanded="false" />
-            <element signature="e#51925#51926#0" expanded="false" />
-            <element signature="e#51984#51985#0" expanded="false" />
-            <element signature="e#53606#53607#0" expanded="false" />
-            <element signature="e#53642#53643#0" expanded="false" />
-            <element signature="e#55161#55162#0" expanded="false" />
-            <element signature="e#55225#55226#0" expanded="false" />
-            <element signature="e#64742#64743#0" expanded="false" />
-            <element signature="e#64779#64780#0" expanded="false" />
-            <element signature="e#82485#82486#0" expanded="false" />
-            <element signature="e#82533#82534#0" expanded="false" />
-            <element signature="e#85715#85716#0" expanded="false" />
-            <element signature="e#85765#85766#0" expanded="false" />
-            <element signature="e#86295#86296#0" expanded="false" />
-            <element signature="e#86351#86352#0" expanded="false" />
-            <element signature="e#86938#86939#0" expanded="false" />
-            <element signature="e#86983#86984#0" expanded="false" />
-            <element signature="e#92524#92525#0" expanded="false" />
-            <element signature="e#92572#92573#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -2566,6 +2559,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2594,6 +2593,12 @@
           <caret line="215" column="19" selection-start-line="215" selection-start-column="19" selection-end-line="215" selection-end-column="19" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2615,6 +2620,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2646,6 +2657,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2677,6 +2694,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2705,6 +2728,12 @@
           <caret line="160" column="0" selection-start-line="160" selection-start-column="0" selection-end-line="160" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2736,6 +2765,12 @@
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -2799,84 +2834,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/ScanResult.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="465" column="11" selection-start-line="465" selection-start-column="11" selection-end-line="465" selection-end-column="11" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/Room.java" />
-    <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/WifiManager.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18705">
-          <caret line="1308" column="26" selection-start-line="1308" selection-start-column="16" selection-end-line="1308" selection-end-column="26" />
-          <folding>
-            <element signature="e#0#98304#0" expanded="false" />
-            <element signature="imports" expanded="false" />
-            <element signature="e#40173#40174#0" expanded="false" />
-            <element signature="e#40237#40238#0" expanded="false" />
-            <element signature="e#40366#40367#0" expanded="false" />
-            <element signature="e#40431#40432#0" expanded="false" />
-            <element signature="e#40561#40562#0" expanded="false" />
-            <element signature="e#40620#40621#0" expanded="false" />
-            <element signature="e#41006#41007#0" expanded="false" />
-            <element signature="e#41069#41070#0" expanded="false" />
-            <element signature="e#41232#41233#0" expanded="false" />
-            <element signature="e#41291#41292#0" expanded="false" />
-            <element signature="e#41659#41660#0" expanded="false" />
-            <element signature="e#41723#41724#0" expanded="false" />
-            <element signature="e#42285#42286#0" expanded="false" />
-            <element signature="e#42345#42346#0" expanded="false" />
-            <element signature="e#44760#44761#0" expanded="false" />
-            <element signature="e#44788#44789#0" expanded="false" />
-            <element signature="e#45099#45100#0" expanded="false" />
-            <element signature="e#45127#45128#0" expanded="false" />
-            <element signature="e#45507#45508#0" expanded="false" />
-            <element signature="e#45534#45535#0" expanded="false" />
-            <element signature="e#51925#51926#0" expanded="false" />
-            <element signature="e#51984#51985#0" expanded="false" />
-            <element signature="e#53606#53607#0" expanded="false" />
-            <element signature="e#53642#53643#0" expanded="false" />
-            <element signature="e#55161#55162#0" expanded="false" />
-            <element signature="e#55225#55226#0" expanded="false" />
-            <element signature="e#64742#64743#0" expanded="false" />
-            <element signature="e#64779#64780#0" expanded="false" />
-            <element signature="e#82485#82486#0" expanded="false" />
-            <element signature="e#82533#82534#0" expanded="false" />
-            <element signature="e#85715#85716#0" expanded="false" />
-            <element signature="e#85765#85766#0" expanded="false" />
-            <element signature="e#86295#86296#0" expanded="false" />
-            <element signature="e#86351#86352#0" expanded="false" />
-            <element signature="e#86938#86939#0" expanded="false" />
-            <element signature="e#86983#86984#0" expanded="false" />
-            <element signature="e#92524#92525#0" expanded="false" />
-            <element signature="e#92572#92573#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="36" column="4" selection-start-line="30" selection-start-column="29" selection-end-line="30" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-      <provider editor-type-id="android-designer2">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="109" column="95" selection-start-line="109" selection-start-column="28" selection-end-line="109" selection-end-column="95" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/java/util/List.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -2889,12 +2847,79 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ReferencePoint.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/RSSPoint.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="300">
-          <caret line="22" column="28" selection-start-line="22" selection-start-column="15" selection-end-line="22" selection-end-column="28" />
+          <caret line="20" column="8" selection-start-line="20" selection-start-column="8" selection-end-line="20" selection-end-column="8" />
           <folding>
             <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/ScanResult.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="180">
+          <caret line="30" column="13" selection-start-line="30" selection-start-column="13" selection-end-line="30" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ACCPoint.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="10" column="4" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="4" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#453#454#0" expanded="true" />
+            <element signature="e#486#487#0" expanded="true" />
+            <element signature="e#513#514#0" expanded="true" />
+            <element signature="e#546#547#0" expanded="true" />
+            <element signature="e#573#574#0" expanded="true" />
+            <element signature="e#606#607#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/WifiManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="1308" column="26" selection-start-line="1308" selection-start-column="16" selection-end-line="1308" selection-end-column="26" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/hardware/SensorManager.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="251">
+          <caret line="317" column="45" selection-start-line="317" selection-start-column="28" selection-end-line="317" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2660">
+          <caret line="185" column="32" selection-start-line="185" selection-start-column="32" selection-end-line="185" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="android-designer2">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-701">
+          <caret line="50" column="46" selection-start-line="50" selection-start-column="46" selection-end-line="50" selection-end-column="46" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#14975#15202#0" expanded="true" />
+            <element signature="e#15201#15202#0" expanded="true" />
+            <element signature="e#15248#15475#0" expanded="true" />
+            <element signature="e#15474#15475#0" expanded="true" />
+            <element signature="e#15521#15748#0" expanded="true" />
+            <element signature="e#15747#15748#0" expanded="true" />
           </folding>
         </state>
       </provider>
