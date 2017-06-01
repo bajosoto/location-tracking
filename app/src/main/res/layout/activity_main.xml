@@ -180,7 +180,7 @@
             android:id="@+id/buttonWalkOrStand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="WTF am I doing?" />
+            android:text="What am I doing?" />
     </LinearLayout>
     <TextView
         android:id="@+id/textAcc"
