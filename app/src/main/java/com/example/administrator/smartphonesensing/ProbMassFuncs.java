@@ -3,6 +3,12 @@ package com.example.administrator.smartphonesensing;
 import android.net.wifi.ScanResult;
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -14,7 +20,7 @@ import static android.net.wifi.WifiManager.calculateSignalLevel;
  * Created by Sergio on 6/1/17.
  */
 
-public class ProbMassFuncs {
+public class ProbMassFuncs implements Serializable {
     private Map<String, TableRss> tablesRss;
     private StoredPMF pmf;
     private int numCells;
@@ -30,12 +36,50 @@ public class ProbMassFuncs {
 
     public void storePMF() {
         // Serialize the pmf
+        try
+        {
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.logPmf.getDir() + "/storedPMF.bin")); //Select where you wish to save the file...
+            oos.writeObject(this.pmf); // write the class as an 'object'
+            oos.flush(); // flush the stream to insure all of the information was written to 'storedPMF.bin'
+            oos.close();// close the stream
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
     }
 
     public void loadPMF() {
         // Load serialized pmf
+        try
+        {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(this.logPmf.getDir() + "/storedPMF.bin"));
+            Object o = ois.readObject();
+            this.pmf = (StoredPMF) o;
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+
+        this.pmf = null;
+
     }
 
+    public Object loadSerializedObject(File f)
+    {
+        try
+        {
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
+            Object o = ois.readObject();
+            return o;
+        }
+        catch(Exception ex)
+        {
+            ex.printStackTrace();
+        }
+        return null;
+    }
     // Write PMF contents into a readable .txt log file
     public void logPMF(){
         logPmf.clearFile();

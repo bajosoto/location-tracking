@@ -75,4 +75,8 @@ public class LogWriter {
         }
         return false;
     }
+
+    public File getDir() {
+        return this.dir;
+    }
 }
