@@ -1,9 +1,11 @@
 package com.example.administrator.smartphonesensing;
 
 import android.net.wifi.ScanResult;
+import android.util.Log;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 import static android.net.wifi.WifiManager.calculateSignalLevel;
@@ -17,6 +19,7 @@ public class ProbMassFuncs {
     private StoredPMF pmf;
     private int numCells;
     private int numRssLevels;
+    LogWriter logPmf = new LogWriter("logPmf.txt");
 
     public ProbMassFuncs(int numCells, int numRssLevels) {
         this.tablesRss = new HashMap<String, TableRss>();
@@ -35,7 +38,38 @@ public class ProbMassFuncs {
 
     // Write PMF contents into a readable .txt log file
     public void logPMF(){
+        logPmf.clearFile();
 
+        logPmf.writeToFile("========================: \n", true);
+        logPmf.writeToFile("Raw RSS DATA: \n", true);
+        logPmf.writeToFile("========================: \n", true);
+        for(Map.Entry<String, TableRss> t : this.tablesRss.entrySet()) {
+            logPmf.writeToFile("AP: " + t.getKey(), true);
+            logPmf.writeToFile("\n", true);
+            for (int cell = 0; cell < t.getValue().numCells; cell++) {
+                for (int rss = 0; rss < t.getValue().numRssLevels; rss++) {
+                    String line = String.valueOf(t.getValue().values[cell][rss]) + ",";
+                    logPmf.writeToFile(line, true);
+                }
+                logPmf.writeToFile("\n", true);
+            }
+            logPmf.writeToFile("\n\n", true);
+        }
+
+        logPmf.writeToFile("========================: \n", true);
+        logPmf.writeToFile("Gaussian DATA: \n", true);
+        logPmf.writeToFile("========================: \n", true);
+        for(Map.Entry<String, TableGaussian> t : this.pmf.tablesGauss.entrySet()) {
+            logPmf.writeToFile("AP: " + t.getKey(), true);
+            logPmf.writeToFile("\n", true);
+            for (int cell = 0; cell < t.getValue().numCells; cell++) {
+                String line = String.valueOf(t.getValue().values[cell].getMean()) + "," +
+                        String.valueOf(t.getValue().values[cell].getVariance());
+                logPmf.writeToFile(line, true);
+                logPmf.writeToFile("\n", true);
+            }
+            logPmf.writeToFile("\n\n", true);
+        }
     }
 
     // Store the data acquired during the current data training scan
@@ -53,7 +87,7 @@ public class ProbMassFuncs {
                 tablesRss.put(s.BSSID, targetTable);
             }
             // Get a RSS in a value from range 0...255
-            int newRss = calculateSignalLevel(s.level, 255);
+            int newRss = calculateSignalLevel(s.level, this.numRssLevels);
             // Add new entry to the right table
             targetTable.addEntry(cell, newRss);
         }
@@ -69,7 +103,7 @@ public class ProbMassFuncs {
             String key = e.getKey();
             TableGaussian gTable = new TableGaussian(this.numCells);
             // For each cell
-            for(int i = 0; i < numCells; i++) {
+            for(int i = 0; i < this.numCells; i++) {
                 // Calculate gaussian pair from RSS table
                 GaussianPair pair = rTable.getGaussian(i);
                 // Then set it in the new gaussian table
@@ -176,17 +210,28 @@ public class ProbMassFuncs {
 
             if(cell < this.numCells) {
                 // Calculate mean
-                for (int i = 0; i < numCells; i++) {
-                    mean += (double) this.values[cell][i];
+                int sum = 0;
+                for (int i = 0; i < this.numRssLevels; i++) {
+                    mean += ((double) this.values[cell][i]) * i;
+                    sum += this.values[cell][i];
                 }
-                mean /= (double) this.numCells;
+                if(sum == 0) {
+                    mean = 0;
+                } else {
+                    mean /= (double) sum;
+                }
 
                 // Calculate variance
-                for (int i = 0; i < numCells; i++) {
-                    double tmp = (double)(this.values[cell][i]) - mean;
-                    variance += Math.pow(tmp, 2);
+                for (int i = 0; i < this.numRssLevels; i++) {
+                    double tmp = (double)i - mean;
+                    variance += (double)(this.values[cell][i]) * Math.pow(tmp, 2);
                 }
-                variance /= (double) this.numCells;
+                if(sum == 0) {
+                    variance = Double.MIN_VALUE;
+                } else {
+                    variance /= (double) sum;
+                }
+
 
                 return new GaussianPair(mean, variance);
             } else {
@@ -214,6 +259,10 @@ public class ProbMassFuncs {
 
         public double getVariance(){
             return this.variance;
+        }
+
+        public String toString() {
+            return "" + mean + " - " + variance;
         }
     }
 }

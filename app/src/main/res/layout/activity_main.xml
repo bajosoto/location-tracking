@@ -62,7 +62,7 @@
             android:layout_gravity="center"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="Room" />
+            android:text="1" />
     </LinearLayout>
 
     <TextView

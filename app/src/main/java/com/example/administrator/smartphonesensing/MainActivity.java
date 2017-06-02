@@ -15,7 +15,6 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 //import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -26,16 +25,13 @@ import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Vector;
+
+import static android.net.wifi.WifiManager.calculateSignalLevel;
+import static com.example.administrator.smartphonesensing.LogWriter.isExternalStorageWritable;
 
 /**
  * Smart Phone Sensing Data Acquisition Code
@@ -56,7 +52,12 @@ public class MainActivity extends Activity implements SensorEventListener {
     private List<Float> yResults = new Vector();
     private List<Float> zResults = new Vector();
 
-    private static final String DIR_NAME = "SmartPhoneSensing";
+    LogWriter logAcc = new LogWriter("logAcc.txt");
+    LogWriter logRss = new LogWriter("logRss.txt");
+
+    ProbMassFuncs pmf = new ProbMassFuncs(3, 5);
+
+
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
     /**
@@ -88,10 +89,6 @@ public class MainActivity extends Activity implements SensorEventListener {
      */
     private float aZ = 0;
 
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
-    String timestamp = simpleDateFormat.format(new Date());
-
-
     /**
      * Text fields to show the sensor values.
      */
@@ -99,10 +96,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     private EditText tbRoomName;
 
     Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand;
-
-    private File root, dir;
-    private String logFileNameAcc, logFileNameRSSI;
-
 
     //AppCompatActivity appCompatActivity;
 
@@ -150,22 +143,12 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TODO: Remove hardcoded values maybe
-        logFileNameAcc = "logAcc.txt";
-        logFileNameRSSI = "logRSSI.txt";
-
         // Check for writing permission to external memory of the device
         if (isExternalStorageWritable())
             checkWritingPermission();
 
         checkWifiPermission();
 
-        root = android.os.Environment.getExternalStorageDirectory();
-        dir = new File(root.getAbsolutePath() + "/" + DIR_NAME);
-        if (!dir.mkdirs())
-        {
-            // file not created
-        }
 
         // Create the text views.
         currentX = (TextView) findViewById(R.id.currentX);
@@ -184,8 +167,8 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         tbRoomName = (EditText) findViewById(R.id.tbRoomName);
 
-        clearFile(logFileNameAcc, timestamp);
-        clearFile(logFileNameRSSI, timestamp);
+        logAcc.clearFile();
+        logRss.clearFile();
 
         // Set the sensor manager
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -204,12 +187,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         // Set the wifi manager
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        //wifiManager.startScan();
 
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 scanResults = wifiManager.getScanResults();
+
+
                 Collections.sort(scanResults, new Comparator<ScanResult>() {
                     @Override
                     public int compare(ScanResult lhs, ScanResult rhs) {
@@ -220,28 +204,35 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 int foundAPs = scanResults.size();
                 scanResults = scanResults.subList(0, foundAPs >= numSSIDs ? numSSIDs : foundAPs);
-                //String line = "";
+                String line = "";
 
                 RSSPoint point = new RSSPoint(tbRoomName.getText().toString());
 
                 for (ScanResult s : scanResults)
                 {
-                    //line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + s.level + "\n";
+                    line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, 255) + "\n";
                     point.addAP(s.BSSID, s.level);
                 }
 
-                //textRssi.setText(point.toString());
+
                 if (scanReqSender == "rssi"){
+                    // New stuff pmf
+                    pmf.addScanResults(scanResults, Integer.parseInt(tbRoomName.getText().toString()));
+
                     refPoints.addElement(point);
                     scanReqSender = "";
                     textRssi.setText("Acquired!");
                 } else if (scanReqSender == "location") {
                     textRssi.setText("You are in " + knn(point, refPoints));
                     scanReqSender = "";
+
+                    // New stuff
+                    pmf.calcGauss();
+                    pmf.logPMF();
                 }
 
 
-                //writeToFile(logFileNameRSSI, line, true);
+                logRss.writeToFile(line, true);
                 //writeToFile(logFileNameRSSI, "--------------------------------------------\n", true);
             }
         }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -331,15 +322,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_WIFI_PERMISSION);
             }
         }
-    }
-
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
     }
 
     // onResume() registers the accelerometer for listening the events
@@ -444,43 +426,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 zResults.clear();
                 accReqSender = "";
             }
-        }
-    }
-
-    private File writeToFile(String fileName, String line, boolean append)
-    {
-        if (!isExternalStorageWritable())
-            return null;
-        File file = new File(dir, fileName);
-        FileWriter fileWriter;
-        try {
-            fileWriter = new FileWriter(file, append);
-            fileWriter.write(line);
-            fileWriter.flush();
-            fileWriter.close();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private File clearFile(String fileName, String date)
-    {
-        if (!isExternalStorageWritable())
-            return null;
-        File file = new File(dir, fileName);
-        FileWriter fileWriter;
-        try {
-            fileWriter = new FileWriter(file);
-            fileWriter.write(timestamp);
-            fileWriter.write("\n\n");
-            fileWriter.flush();
-            fileWriter.close();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 }
