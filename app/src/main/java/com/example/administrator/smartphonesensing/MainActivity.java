@@ -47,7 +47,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     /* The number of access points we are taking into consideration */
     private static final int numSSIDs = 5;
     /* The number of RSS levels (e.g. 0..255) we are taking into consideration */
-    private static final int numRSSLvl = 50;
+    private static final int numRSSLvl = 255;
     /* The number of cells we are taking into consideration */
     private static final int numRooms = 3;
 
@@ -229,6 +229,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, numRSSLvl) + "\n";
                     point.addAP(s.BSSID, s.level);
                 }
+                line += "\n";
 
 
                 if (scanReqSender == "rssi"){

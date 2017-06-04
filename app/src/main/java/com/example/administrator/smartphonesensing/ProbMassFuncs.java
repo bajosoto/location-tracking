@@ -217,13 +217,15 @@ public class ProbMassFuncs implements Serializable {
             if(cell < this.numCells) {
                 double mean = this.values[cell].getMean();
                 double variance = this.values[cell].getVariance();
-                if(variance == 0 && mean == 0){
-                    return 0.0;
-                } else if (variance == 0) {
-                    variance = 0.0000001;
+                if(variance == 0) {
+                    if (mean == measuredRss) {
+                        return 1.0;
+                    } else {
+                        return 0.0;
+                    }
                 }
-                double numerator = Math.exp((-1.0) * (Math.pow(measuredRss - mean, 2)) / (2 * variance));
-                double denominator = Math.sqrt(2 * Math.PI * variance);
+                double numerator = Math.exp((-1.0) * (Math.pow(measuredRss - mean, 2.0)) / (2.0 * variance));
+                double denominator = Math.sqrt(2.0 * Math.PI * variance);
                 return (numerator) / (denominator);
             } else {
                 // Invalid cell number
@@ -276,28 +278,29 @@ public class ProbMassFuncs implements Serializable {
                     mean += ((double) this.values[cell][i]) * i;
                     sum += this.values[cell][i];
                 }
+
+                // No data at any RSS level for this SSID found in this cell, so var = mean = 0.
+                // This will make the probability zero
                 if(sum == 0) {
-                    mean = 0;
-                } else {
-                    mean /= (double) sum;
+                    mean = 0.0;
+                    variance = 0.0;
+                    return new GaussianPair(mean, variance);
                 }
+                // Otherwise, calculate the mean
+                mean /= (double) sum;
 
                 // Calculate variance
                 for (int i = 0; i < this.numRssLevels; i++) {
                     double tmp = (double)i - mean;
                     variance += (double)(this.values[cell][i]) * Math.pow(tmp, 2);
                 }
-                if(sum == 0) {
-                    variance = Double.MIN_VALUE;
-                } else {
-                    variance /= (double) sum;
-                }
-
+                // Variance can still be zero, in case all samples were identical
+                variance /= (double) sum;
 
                 return new GaussianPair(mean, variance);
             } else {
                 // Invalid cell number
-                return new GaussianPair(0, 1);
+                return new GaussianPair(0.0, 0.0);
             }
         }
     }
