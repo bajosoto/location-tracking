@@ -164,7 +164,7 @@ public class ProbMassFuncs implements Serializable {
         int loc = 0;
         // One iteration per scan result
         for (ScanResult s : scanResults) {
-            loc = pm.updateBelief(s);
+            loc = pm.updateBelief(s, numRssLevels);
         }
 
         return loc;
@@ -355,14 +355,14 @@ public class ProbMassFuncs implements Serializable {
         // Reset the current belief to room 0 and all prior to equal probability
         public void resetPriorBelief() {
             for (int i = 0; i < this.numCells; i++) {
-                this.p_x_prior[i] = 1 / this.numCells;
+                this.p_x_prior[i] = 1.0 / this.numCells;
                 this.current_belief = 0;
             }
         }
 
         // Update current belief using bayesian filtering
-        public int updateBelief(ScanResult s) {
-            logBayes.writeToFile("Generating new belief...\n\n", true);
+        public int updateBelief(ScanResult s, int numRssLevels) {
+            logBayes.writeToFile("Generating new belief. RSSID: " + s.BSSID + "\n\n", true);
             // Check if a table exists for the current AP scanned
             if (pmf.tablesGauss.containsKey(s.BSSID)) {
                 // Absolute probability of reading this wifi at this signal level (used for normalization)
@@ -373,11 +373,11 @@ public class ProbMassFuncs implements Serializable {
 
                 for (int i = 0; i < this.numCells; i++) {
                     // Update p(z|x)
-                    this.p_z_x[i] = pmf.tablesGauss.get(s.BSSID).getProb(i, s.level);
-                    printArray(this.p_x_prior, "p(z|x)", this.numCells);
+                    this.p_z_x[i] = pmf.tablesGauss.get(s.BSSID).getProb(i, calculateSignalLevel(s.level, numRssLevels));
+
                     // Update p_wifi = p(z|x) * p(x)
                     this.p_wifi[i] = this.p_z_x[i] * this.p_x_prior[i];
-                    printArray(this.p_wifi, "p(z|x)*p(x)", this.numCells);
+
                     // Calculate total p_wifi to normalize
                     tot_p_wifi += this.p_wifi[i];
                 }
@@ -385,8 +385,11 @@ public class ProbMassFuncs implements Serializable {
                 for(int i = 0; i < this.numCells; i++) {
                     // Calculate posterior p(x) and store it as prior for next iteration
                     this.p_x_prior[i] = this.p_wifi[i] / tot_p_wifi;
-                    printArray(this.p_x_prior, "Post", this.numCells);
                 }
+
+                printArray(this.p_z_x, "p(z|x)", this.numCells);
+                printArray(this.p_wifi, "p(z|x)*p(x)", this.numCells);
+                printArray(this.p_x_prior, "Post", this.numCells);
 
                 // Find highest probability
                 double max = 0;
