@@ -370,7 +370,9 @@ public class ProbMassFuncs implements Serializable {
 
         // Update current belief using bayesian filtering
         public int updateBelief(ScanResult s, int numRssLevels) {
-            logBayes.writeToFile("Generating new belief. RSSID: " + s.BSSID + "\n\n", true);
+            logBayes.writeToFile("------------------------------------------------------------\n", true);
+            logBayes.writeToFile("Generating new belief. SSID: " + s.BSSID + "  |  RSS: "
+                    + calculateSignalLevel(s.level, numRssLevels) + "\n", true);
             // Check if a table exists for the current AP scanned
             if (pmf.tablesGauss.containsKey(s.BSSID)) {
                 // Absolute probability of reading this wifi at this signal level (used for normalization)
@@ -393,11 +395,16 @@ public class ProbMassFuncs implements Serializable {
 
                 for(int i = 0; i < this.numCells; i++) {
                     // Calculate posterior p(x) and store it as prior for next iteration
-                    this.p_x_prior[i] = this.p_wifi[i] / tot_p_wifi;
+                    if(tot_p_wifi != 0) {
+                        this.p_x_prior[i] = this.p_wifi[i] / tot_p_wifi;
+                    }
                 }
 
                 printArray(this.p_z_x, "p(z|x)", this.numCells);
                 printArray(this.p_wifi, "p(z|x)*p(x)", this.numCells);
+                if(tot_p_wifi == 0){
+                    logBayes.writeToFile("\t~This SSID was ignored since p(z|x) * p(x) was 0~\n", true);
+                }
                 printArray(this.p_x_prior, "Post", this.numCells);
 
                 // Find highest probability

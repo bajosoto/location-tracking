@@ -11,7 +11,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e029115a-b893-4609-891b-a8176918c8f3" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java" />
     </list>
     <ignored path="SmartPhoneSensing.iws" />
@@ -72,8 +71,8 @@
       <file leaf-file-name="ProbMassFuncs.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="395">
-              <caret line="376" column="22" selection-start-line="376" selection-start-column="22" selection-end-line="376" selection-end-column="22" />
+            <state relative-caret-position="582">
+              <caret line="405" column="93" selection-start-line="405" selection-start-column="93" selection-end-line="405" selection-end-column="93" />
               <folding />
             </state>
           </provider>
@@ -2342,7 +2341,14 @@
       <option name="project" value="LOCAL" />
       <updated>1496595534566</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="fix tot_p_wifi set to double">
+      <created>1496600128351</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1496600128351</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -2396,7 +2402,8 @@
     <MESSAGE value="fix index problem maybe" />
     <MESSAGE value="fix integer division" />
     <MESSAGE value="fix variance division by 0" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix variance division by 0" />
+    <MESSAGE value="fix tot_p_wifi set to double" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix tot_p_wifi set to double" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -2788,8 +2795,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="376" column="22" selection-start-line="376" selection-start-column="22" selection-end-line="376" selection-end-column="22" />
+        <state relative-caret-position="582">
+          <caret line="405" column="93" selection-start-line="405" selection-start-column="93" selection-end-line="405" selection-end-column="93" />
           <folding />
         </state>
       </provider>
