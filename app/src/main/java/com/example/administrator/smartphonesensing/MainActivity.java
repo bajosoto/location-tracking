@@ -246,6 +246,8 @@ public class MainActivity extends Activity implements SensorEventListener {
                     refPoints.addElement(point);
                     textRssi.setText("Acquired! (" + sampleCount + ")");
 
+                    sampleCount++;
+
                 } else if (scanReqSender == "location") {
                     scanReqSender = "";
                     // ========================================================================

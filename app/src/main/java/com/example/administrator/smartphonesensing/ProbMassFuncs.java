@@ -33,7 +33,7 @@ public class ProbMassFuncs implements Serializable {
     public ProbMassFuncs(int numCells, int numRssLevels) {
         this.tablesRss = new HashMap<String, TableRss>();
         this.pmf = new StoredPMF();
-        this.pm = new PerceptionModel();
+        this.pm = new PerceptionModel(numCells, numRssLevels);
         this.numCells = numCells;
         this.numRssLevels = numRssLevels;
         this.logPmf.clearFile();
@@ -336,9 +336,15 @@ public class ProbMassFuncs implements Serializable {
         private double p_wifi[];
         // Perception model log
         LogWriter logBayes = new LogWriter("logBayes.txt");
+        // Number of cells
+        private int numCells;
+        // Number of RSS level values
+        private int numRssLevels;
 
         // Constructor. Starts at believing room 0, equal probability for all rooms
-        public PerceptionModel() {
+        public PerceptionModel(int numCells, int numRssLevels) {
+            this.numCells = numCells;
+            this.numRssLevels = numRssLevels;
             this.p_x_prior = new double[numCells];
             this.p_z_x = new double[numCells];
             this.p_wifi = new double[numCells];
@@ -348,8 +354,8 @@ public class ProbMassFuncs implements Serializable {
 
         // Reset the current belief to room 0 and all prior to equal probability
         public void resetPriorBelief() {
-            for (int i = 0; i < numCells; i++) {
-                this.p_x_prior[i] = 1 / numCells;
+            for (int i = 0; i < this.numCells; i++) {
+                this.p_x_prior[i] = 1 / this.numCells;
                 this.current_belief = 0;
             }
         }
@@ -363,45 +369,45 @@ public class ProbMassFuncs implements Serializable {
                 int tot_p_wifi = 0;
 
                 // Print prior belief
-                printArray(p_x_prior, "Prior");
+                printArray(p_x_prior, "Prior", this.numCells);
 
-                for (int i = 0; i < numCells; i++) {
+                for (int i = 0; i < this.numCells; i++) {
                     // Update p(z|x)
-                    p_z_x[i] = pmf.tablesGauss.get(s.BSSID).getProb(i, s.level);
-                    printArray(p_x_prior, "p(z|x)");
+                    this.p_z_x[i] = pmf.tablesGauss.get(s.BSSID).getProb(i, s.level);
+                    printArray(this.p_x_prior, "p(z|x)", this.numCells);
                     // Update p_wifi = p(z|x) * p(x)
-                    p_wifi[i] = p_z_x[i] * p_x_prior[i];
-                    printArray(p_wifi, "p(z|x)*p(x)");
+                    this.p_wifi[i] = this.p_z_x[i] * this.p_x_prior[i];
+                    printArray(this.p_wifi, "p(z|x)*p(x)", this.numCells);
                     // Calculate total p_wifi to normalize
-                    tot_p_wifi += p_wifi[i];
+                    tot_p_wifi += this.p_wifi[i];
                 }
 
-                for(int i = 0; i < numCells; i++) {
+                for(int i = 0; i < this.numCells; i++) {
                     // Calculate posterior p(x) and store it as prior for next iteration
-                    p_x_prior[i] = p_wifi[i] / tot_p_wifi;
-                    printArray(p_x_prior, "Post");
+                    this.p_x_prior[i] = this.p_wifi[i] / tot_p_wifi;
+                    printArray(this.p_x_prior, "Post", this.numCells);
                 }
 
                 // Find highest probability
                 double max = 0;
-                for(int i = 0; i < numCells; i++) {
-                    if (p_x_prior[i] > max) {
-                        max = p_x_prior[i];
-                        current_belief = i;
+                for(int i = 0; i < this.numCells; i++) {
+                    if (this.p_x_prior[i] > max) {
+                        max = this.p_x_prior[i];
+                        this.current_belief = i;
                     }
                 }
 
-                logBayes.writeToFile("\nHighest prob: " + current_belief + "\n\n", true);
+                logBayes.writeToFile("\nHighest prob: " + this.current_belief + "\n\n", true);
 
             } else {
                 logBayes.writeToFile(s.BSSID + "was not found in the training data. Skipping...\n", true);
             }
-            return current_belief;
+            return this.current_belief;
         }
 
-        public void printArray(double[] a, String title) {
+        public void printArray(double[] a, String title, int numCells) {
             String line = title + "\t";
-            for(int i = 0; i < a.length; i++) {
+            for(int i = 0; i < numCells; i++) {
                 line += a[i] + "\t";
             }
             line += "\n";
