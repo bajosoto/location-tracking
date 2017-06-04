@@ -292,7 +292,7 @@ public class ProbMassFuncs implements Serializable {
                 // Calculate variance
                 for (int i = 0; i < this.numRssLevels; i++) {
                     double tmp = (double)i - mean;
-                    variance += (double)(this.values[cell][i]) * Math.pow(tmp, 2);
+                    variance += (double)(this.values[cell][i]) * Math.pow(tmp, 2.0);
                 }
                 // Variance can still be zero, in case all samples were identical
                 variance /= (double) sum;
@@ -374,14 +374,15 @@ public class ProbMassFuncs implements Serializable {
             // Check if a table exists for the current AP scanned
             if (pmf.tablesGauss.containsKey(s.BSSID)) {
                 // Absolute probability of reading this wifi at this signal level (used for normalization)
-                int tot_p_wifi = 0;
+                double tot_p_wifi = 0;
 
                 // Print prior belief
                 printArray(p_x_prior, "Prior", this.numCells);
 
                 for (int i = 0; i < this.numCells; i++) {
                     // Update p(z|x)
-                    this.p_z_x[i] = pmf.tablesGauss.get(s.BSSID).getProb(i, calculateSignalLevel(s.level, numRssLevels));
+                    TableGaussian t = pmf.tablesGauss.get(s.BSSID);
+                    this.p_z_x[i] = t.getProb(i, calculateSignalLevel(s.level, numRssLevels));
 
                     // Update p_wifi = p(z|x) * p(x)
                     this.p_wifi[i] = this.p_z_x[i] * this.p_x_prior[i];
