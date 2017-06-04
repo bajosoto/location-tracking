@@ -46,9 +46,16 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     /* The number of access points we are taking into consideration */
     private static final int numSSIDs = 5;
+    /* The number of RSS levels (e.g. 0..255) we are taking into consideration */
+    private static final int numRSSLvl = 3;
+    /* The number of cells we are taking into consideration */
+    private static final int numRooms = 3;
+
     private static String scanReqSender = "";
     private static Vector<RSSPoint> refPoints = new Vector();
     private List<ScanResult> scanResults;
+
+    private int sampleCount = 0;
 
     private static final int numACCSamples = 80;
     private static int currAccSample = 0;
@@ -61,7 +68,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     LogWriter logAcc = new LogWriter("logAcc.txt");
     LogWriter logRss = new LogWriter("logRss.txt");
 
-    ProbMassFuncs pmf = new ProbMassFuncs(3, 5);
+    ProbMassFuncs pmf = new ProbMassFuncs(numRooms, numRSSLvl);
 
 
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
@@ -98,10 +105,11 @@ public class MainActivity extends Activity implements SensorEventListener {
     /**
      * Text fields to show the sensor values.
      */
-    private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc;
+    private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc, textBayes;
     private EditText tbRoomName;
 
-    Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand;
+    Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayes,
+    buttonLocationBayes;
 
     //AppCompatActivity appCompatActivity;
 
@@ -163,6 +171,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         titleAcc = (TextView) findViewById(R.id.titleAcc);
         textRssi = (TextView) findViewById(R.id.textRSSI);
         textAcc = (TextView) findViewById(R.id.textAcc);
+        textBayes = (TextView) findViewById(R.id.textBAYES);
 
         // Create the buttons
         buttonRssi = (Button) findViewById(R.id.buttonRSSI);
@@ -170,6 +179,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonWalk = (Button) findViewById(R.id.buttonWalk);
         buttonStand = (Button) findViewById(R.id.buttonStand);
         buttonWalkOrStand = (Button) findViewById(R.id.buttonWalkOrStand);
+        buttonBayes = (Button) findViewById(R.id.buttonBAYES);
+        buttonLocationBayes = (Button) findViewById(R.id.buttonLocationBAYES);
 
         tbRoomName = (EditText) findViewById(R.id.tbRoomName);
 
@@ -214,27 +225,36 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 RSSPoint point = new RSSPoint(tbRoomName.getText().toString());
 
-                for (ScanResult s : scanResults)
-                {
-                    line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, 255) + "\n";
+                for (ScanResult s : scanResults) {
+                    line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, numRSSLvl) + "\n";
                     point.addAP(s.BSSID, s.level);
                 }
 
 
                 if (scanReqSender == "rssi"){
-                    // New stuff pmf
+                    scanReqSender = "";
+                    // ========================================================================
+                    // PMF
+                    // ========================================================================
+                    // Add current scan results to pmf training
                     pmf.addScanResults(scanResults, Integer.parseInt(tbRoomName.getText().toString()));
+                    textBayes.setText("Acquired! (" + sampleCount + ")");
 
+                    // ========================================================================
+                    // KNN
+                    // ========================================================================
                     refPoints.addElement(point);
-                    scanReqSender = "";
-                    textRssi.setText("Acquired!");
-                } else if (scanReqSender == "location") {
-                    textRssi.setText("You are in " + knn(point, refPoints));
-                    scanReqSender = "";
+                    textRssi.setText("Acquired! (" + sampleCount + ")");
 
-                    // New stuff
-                    pmf.calcGauss();
-                    pmf.logPMF();
+                } else if (scanReqSender == "location") {
+                    scanReqSender = "";
+                    // ========================================================================
+                    // KNN
+                    // ========================================================================
+                    textRssi.setText("You are in " + knn(point, refPoints));
+                } else if (scanReqSender == "locationbayes") {
+                    scanReqSender = "";
+                    textBayes.setText("I think you are in " + pmf.findLocation(scanResults));
                 }
 
 
@@ -249,6 +269,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             public void onClick(View v) {
                 scanReqSender = "rssi";
                 textRssi.setText("Acquiring...");
+                textBayes.setText("Acquiring...");
                 wifiManager.startScan();
             }
         });
@@ -257,9 +278,35 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonLocation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                // ========================================================================
+                // KNN
+                // ========================================================================
                 scanReqSender = "location";
                 textRssi.setText("Finding your location...");
                 wifiManager.startScan();
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonLocationBayes.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scanReqSender = "locationbayes";
+                textBayes.setText("Finding your location...");
+                wifiManager.startScan();
+            }
+        });
+
+        buttonBayes.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // ========================================================================
+                // PMF
+                // ========================================================================
+                // Calculate gaussian curves for all
+                textBayes.setText("Calculating Gaussian distributions...");
+                pmf.calcGauss();
+                textBayes.setText("Done!");
             }
         });
 

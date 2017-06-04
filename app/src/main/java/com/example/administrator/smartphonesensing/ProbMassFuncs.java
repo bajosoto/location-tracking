@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -23,67 +24,60 @@ import static android.net.wifi.WifiManager.calculateSignalLevel;
 public class ProbMassFuncs implements Serializable {
     private Map<String, TableRss> tablesRss;
     private StoredPMF pmf;
+    private PerceptionModel pm;
     private int numCells;
     private int numRssLevels;
     LogWriter logPmf = new LogWriter("logPmf.txt");
 
+
     public ProbMassFuncs(int numCells, int numRssLevels) {
         this.tablesRss = new HashMap<String, TableRss>();
         this.pmf = new StoredPMF();
+        this.pm = new PerceptionModel();
         this.numCells = numCells;
         this.numRssLevels = numRssLevels;
+        this.logPmf.clearFile();
     }
 
     public void storePMF() {
         // Serialize the pmf
-        try
-        {
+        try {
             ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.logPmf.getDir() + "/storedPMF.bin")); //Select where you wish to save the file...
             oos.writeObject(this.pmf); // write the class as an 'object'
             oos.flush(); // flush the stream to insure all of the information was written to 'storedPMF.bin'
             oos.close();// close the stream
         }
-        catch(Exception ex)
-        {
+        catch(Exception ex) {
             ex.printStackTrace();
         }
     }
 
     public void loadPMF() {
         // Load serialized pmf
-        try
-        {
+        try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(this.logPmf.getDir() + "/storedPMF.bin"));
             Object o = ois.readObject();
             this.pmf = (StoredPMF) o;
         }
-        catch(Exception ex)
-        {
+        catch(Exception ex) {
             ex.printStackTrace();
         }
-
         this.pmf = null;
-
     }
 
-    public Object loadSerializedObject(File f)
-    {
-        try
-        {
+    public Object loadSerializedObject(File f) {
+        try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
             Object o = ois.readObject();
             return o;
         }
-        catch(Exception ex)
-        {
+        catch(Exception ex) {
             ex.printStackTrace();
         }
         return null;
     }
     // Write PMF contents into a readable .txt log file
     public void logPMF(){
-        logPmf.clearFile();
-
         logPmf.writeToFile("========================: \n", true);
         logPmf.writeToFile("Raw RSS DATA: \n", true);
         logPmf.writeToFile("========================: \n", true);
@@ -156,6 +150,24 @@ public class ProbMassFuncs implements Serializable {
             // Add the gaussian table to the gaussian tables hashmap
             this.pmf.tablesGauss.put(key, gTable);
         }
+        this.logPMF();
+    }
+
+    // Attempt to find the current location. It performs a single measurement iteration with n
+    // iterations corresponding to APs considered
+    // scanResults is already sorted descending
+    // scanResults is already cropped to either numSSIDs, or the max number of SSIDs found if
+    // this was less than numSSIDs
+    public int findLocation(List<ScanResult> scanResults) {
+
+        // Guessed location
+        int loc = 0;
+        // One iteration per scan result
+        for (ScanResult s : scanResults) {
+            loc = pm.updateBelief(s);
+        }
+
+        return loc;
     }
 
     /**
@@ -307,6 +319,93 @@ public class ProbMassFuncs implements Serializable {
 
         public String toString() {
             return "" + mean + " - " + variance;
+        }
+    }
+
+    /**
+     * Perception Model uses Bayesian filtering to update the believed current location
+     */
+    public class PerceptionModel {
+        // Current room we believe we are in
+        private int current_belief;
+        // Probability of being at each room x from previous iteration
+        private double p_x_prior[];
+        // Probability of reading AP at certain RSS (z) given we are in room x
+        private double p_z_x[];
+        // Probability of reading AP at certain RSS (z) AND being in room x
+        private double p_wifi[];
+        // Perception model log
+        LogWriter logBayes = new LogWriter("logBayes.txt");
+
+        // Constructor. Starts at believing room 0, equal probability for all rooms
+        public PerceptionModel() {
+            this.p_x_prior = new double[numCells];
+            this.p_z_x = new double[numCells];
+            this.p_wifi = new double[numCells];
+            resetPriorBelief();
+            this.logBayes.clearFile();
+        }
+
+        // Reset the current belief to room 0 and all prior to equal probability
+        public void resetPriorBelief() {
+            for (int i = 0; i < numCells; i++) {
+                this.p_x_prior[i] = 1 / numCells;
+                this.current_belief = 0;
+            }
+        }
+
+        // Update current belief using bayesian filtering
+        public int updateBelief(ScanResult s) {
+            logBayes.writeToFile("Generating new belief...\n\n", true);
+            // Check if a table exists for the current AP scanned
+            if (pmf.tablesGauss.containsKey(s.BSSID)) {
+                // Absolute probability of reading this wifi at this signal level (used for normalization)
+                int tot_p_wifi = 0;
+
+                // Print prior belief
+                printArray(p_x_prior, "Prior");
+
+                for (int i = 0; i < numCells; i++) {
+                    // Update p(z|x)
+                    p_z_x[i] = pmf.tablesGauss.get(s.BSSID).getProb(i, s.level);
+                    printArray(p_x_prior, "p(z|x)");
+                    // Update p_wifi = p(z|x) * p(x)
+                    p_wifi[i] = p_z_x[i] * p_x_prior[i];
+                    printArray(p_wifi, "p(z|x)*p(x)");
+                    // Calculate total p_wifi to normalize
+                    tot_p_wifi += p_wifi[i];
+                }
+
+                for(int i = 0; i < numCells; i++) {
+                    // Calculate posterior p(x) and store it as prior for next iteration
+                    p_x_prior[i] = p_wifi[i] / tot_p_wifi;
+                    printArray(p_x_prior, "Post");
+                }
+
+                // Find highest probability
+                double max = 0;
+                for(int i = 0; i < numCells; i++) {
+                    if (p_x_prior[i] > max) {
+                        max = p_x_prior[i];
+                        current_belief = i;
+                    }
+                }
+
+                logBayes.writeToFile("\nHighest prob: " + current_belief + "\n\n", true);
+
+            } else {
+                logBayes.writeToFile(s.BSSID + "was not found in the training data. Skipping...\n", true);
+            }
+            return current_belief;
+        }
+
+        public void printArray(double[] a, String title) {
+            String line = title + "\t";
+            for(int i = 0; i < a.length; i++) {
+                line += a[i] + "\t";
+            }
+            line += "\n";
+            logBayes.writeToFile(line, true);
         }
     }
 }
