@@ -11,6 +11,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e029115a-b893-4609-891b-a8176918c8f3" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java" />
     </list>
     <ignored path="SmartPhoneSensing.iws" />
@@ -59,8 +60,8 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="202">
-              <caret line="228" column="95" selection-start-line="228" selection-start-column="75" selection-end-line="228" selection-end-column="95" />
+            <state relative-caret-position="287">
+              <caret line="51" column="42" selection-start-line="51" selection-start-column="42" selection-end-line="51" selection-end-column="42" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -71,8 +72,8 @@
       <file leaf-file-name="ProbMassFuncs.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="522">
-              <caret line="357" column="39" selection-start-line="357" selection-start-column="39" selection-end-line="357" selection-end-column="39" />
+            <state relative-caret-position="582">
+              <caret line="226" column="51" selection-start-line="226" selection-start-column="51" selection-end-line="226" selection-end-column="51" />
               <folding />
             </state>
           </provider>
@@ -2320,7 +2321,14 @@
       <option name="project" value="LOCAL" />
       <updated>1496589064515</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="fix integer division">
+      <created>1496590469406</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1496590469406</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -2372,7 +2380,8 @@
     <MESSAGE value="first commit belief branch" />
     <MESSAGE value="Untested bayesian first version" />
     <MESSAGE value="fix index problem maybe" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix index problem maybe" />
+    <MESSAGE value="fix integer division" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix integer division" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -2752,8 +2761,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="202">
-          <caret line="228" column="95" selection-start-line="228" selection-start-column="75" selection-end-line="228" selection-end-column="95" />
+        <state relative-caret-position="287">
+          <caret line="51" column="42" selection-start-line="51" selection-start-column="42" selection-end-line="51" selection-end-column="42" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -2762,8 +2771,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="522">
-          <caret line="357" column="39" selection-start-line="357" selection-start-column="39" selection-end-line="357" selection-end-column="39" />
+        <state relative-caret-position="582">
+          <caret line="226" column="51" selection-start-line="226" selection-start-column="51" selection-end-line="226" selection-end-column="51" />
           <folding />
         </state>
       </provider>

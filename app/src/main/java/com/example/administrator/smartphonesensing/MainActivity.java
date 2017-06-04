@@ -47,7 +47,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     /* The number of access points we are taking into consideration */
     private static final int numSSIDs = 5;
     /* The number of RSS levels (e.g. 0..255) we are taking into consideration */
-    private static final int numRSSLvl = 3;
+    private static final int numRSSLvl = 50;
     /* The number of cells we are taking into consideration */
     private static final int numRooms = 3;
 

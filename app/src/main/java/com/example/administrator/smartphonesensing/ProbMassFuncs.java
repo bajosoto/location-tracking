@@ -217,6 +217,11 @@ public class ProbMassFuncs implements Serializable {
             if(cell < this.numCells) {
                 double mean = this.values[cell].getMean();
                 double variance = this.values[cell].getVariance();
+                if(variance == 0 && mean == 0){
+                    return 0.0;
+                } else if (variance == 0) {
+                    variance = 0.0000001;
+                }
                 double numerator = Math.exp((-1.0) * (Math.pow(measuredRss - mean, 2)) / (2 * variance));
                 double denominator = Math.sqrt(2 * Math.PI * variance);
                 return (numerator) / (denominator);
@@ -403,7 +408,7 @@ public class ProbMassFuncs implements Serializable {
                 logBayes.writeToFile("\nHighest prob: " + this.current_belief + "\n\n", true);
 
             } else {
-                logBayes.writeToFile(s.BSSID + "was not found in the training data. Skipping...\n", true);
+                logBayes.writeToFile(s.BSSID + " was not found in the training data. Skipping...\n", true);
             }
             return this.current_belief;
         }
