@@ -69,6 +69,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     LogWriter logRss = new LogWriter("logRss.txt");
 
     ProbMassFuncs pmf = new ProbMassFuncs(numRooms, numRSSLvl);
+    // floorMap3D cannot be initialized here since it needs the Activity to be initialized first
+    // so init is in OnCreate()
+    FloorMap floorMap3D;
+    int testState = 0; //TODO: Delete this
 
 
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
@@ -109,7 +113,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     private EditText tbRoomName;
 
     Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayes,
-    buttonLocationBayes;
+    buttonLocationBayes, buttonTest;
 
     //AppCompatActivity appCompatActivity;
 
@@ -157,6 +161,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // init 3D map
+        floorMap3D = new FloorMap(this, this);
+
         // Check for writing permission to external memory of the device
         if (isExternalStorageWritable())
             checkWritingPermission();
@@ -181,6 +188,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonWalkOrStand = (Button) findViewById(R.id.buttonWalkOrStand);
         buttonBayes = (Button) findViewById(R.id.buttonBAYES);
         buttonLocationBayes = (Button) findViewById(R.id.buttonLocationBAYES);
+        buttonTest = (Button) findViewById(R.id.buttonTest);
 
         tbRoomName = (EditText) findViewById(R.id.tbRoomName);
 
@@ -337,6 +345,152 @@ public class MainActivity extends Activity implements SensorEventListener {
             public void onClick(View v) {
                 accReqSender = "walkorstand";
                 textAcc.setText("Tracking your movement...");
+            }
+        });
+
+
+
+        // Create a click listener for our button.
+        buttonTest.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(testState++){
+                    case 0:
+                        floorMap3D.setRoomProb(1, 1.0);
+                        floorMap3D.setRoomProb(2, 1.0);
+                        floorMap3D.setRoomProb(3, 1.0);
+                        floorMap3D.setRoomProb(4, 1.0);
+                        floorMap3D.setRoomProb(5, 1.0);
+                        floorMap3D.setRoomProb(6, 1.0);
+                        floorMap3D.setRoomProb(7, 1.0);
+                        floorMap3D.setRoomProb(8, 1.0);
+                        floorMap3D.setRoomProb(9, 1.0);
+                        floorMap3D.setRoomProb(10, 1.0);
+                        floorMap3D.setRoomProb(11, 1.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 1.0);
+                        floorMap3D.setRoomProb(14, 1.0);
+                        floorMap3D.setRoomProb(15, 1.0);
+                        floorMap3D.setRoomProb(16, 1.0);
+                        floorMap3D.setRoomProb(17, 1.0);
+                        floorMap3D.setRoomProb(18, 1.0);
+                        floorMap3D.setRoomProb(19, 1.0);
+                        floorMap3D.setRoomProb(20, 1.0);
+                        break;
+                    case 1:
+                        floorMap3D.setRoomProb(1, 0.6);
+                        floorMap3D.setRoomProb(2, 0.7);
+                        floorMap3D.setRoomProb(3, 0.7);
+                        floorMap3D.setRoomProb(4, 0.8);
+                        floorMap3D.setRoomProb(5, 0.8);
+                        floorMap3D.setRoomProb(6, 0.9);
+                        floorMap3D.setRoomProb(7, 0.9);
+                        floorMap3D.setRoomProb(8, 0.9);
+                        floorMap3D.setRoomProb(9, 1.0);
+                        floorMap3D.setRoomProb(10, 1.0);
+                        floorMap3D.setRoomProb(11, 1.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 1.0);
+                        floorMap3D.setRoomProb(14, 1.0);
+                        floorMap3D.setRoomProb(15, 0.9);
+                        floorMap3D.setRoomProb(16, 0.9);
+                        floorMap3D.setRoomProb(17, 0.7);
+                        floorMap3D.setRoomProb(18, 0.7);
+                        floorMap3D.setRoomProb(19, 0.6);
+                        floorMap3D.setRoomProb(20, 0.6);
+                        break;
+                    case 2:
+                        floorMap3D.setRoomProb(1, 0.3);
+                        floorMap3D.setRoomProb(2, 0.5);
+                        floorMap3D.setRoomProb(3, 0.5);
+                        floorMap3D.setRoomProb(4, 0.6);
+                        floorMap3D.setRoomProb(5, 0.6);
+                        floorMap3D.setRoomProb(6, 0.7);
+                        floorMap3D.setRoomProb(7, 0.7);
+                        floorMap3D.setRoomProb(8, 0.7);
+                        floorMap3D.setRoomProb(9, 0.9);
+                        floorMap3D.setRoomProb(10, 0.9);
+                        floorMap3D.setRoomProb(11, 1.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 1.0);
+                        floorMap3D.setRoomProb(14, 0.7);
+                        floorMap3D.setRoomProb(15, 0.5);
+                        floorMap3D.setRoomProb(16, 0.5);
+                        floorMap3D.setRoomProb(17, 0.3);
+                        floorMap3D.setRoomProb(18, 0.3);
+                        floorMap3D.setRoomProb(19, 0.2);
+                        floorMap3D.setRoomProb(20, 0.2);
+                        break;
+                    case 3:
+                        floorMap3D.setRoomProb(1, 0.1);
+                        floorMap3D.setRoomProb(2, 0.2);
+                        floorMap3D.setRoomProb(3, 0.3);
+                        floorMap3D.setRoomProb(4, 0.3);
+                        floorMap3D.setRoomProb(5, 0.4);
+                        floorMap3D.setRoomProb(6, 0.3);
+                        floorMap3D.setRoomProb(7, 0.4);
+                        floorMap3D.setRoomProb(8, 0.3);
+                        floorMap3D.setRoomProb(9, 0.5);
+                        floorMap3D.setRoomProb(10, 0.6);
+                        floorMap3D.setRoomProb(11, 0.7);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 0.9);
+                        floorMap3D.setRoomProb(14, 0.5);
+                        floorMap3D.setRoomProb(15, 0.3);
+                        floorMap3D.setRoomProb(16, 0.2);
+                        floorMap3D.setRoomProb(17, 0.2);
+                        floorMap3D.setRoomProb(18, 0.1);
+                        floorMap3D.setRoomProb(19, 0.0);
+                        floorMap3D.setRoomProb(20, 0.0);
+                        break;
+                    case 4:
+                        floorMap3D.setRoomProb(1, 0.0);
+                        floorMap3D.setRoomProb(2, 0.0);
+                        floorMap3D.setRoomProb(3, 0.0);
+                        floorMap3D.setRoomProb(4, 0.1);
+                        floorMap3D.setRoomProb(5, 0.2);
+                        floorMap3D.setRoomProb(6, 0.1);
+                        floorMap3D.setRoomProb(7, 0.1);
+                        floorMap3D.setRoomProb(8, 0.1);
+                        floorMap3D.setRoomProb(9, 0.3);
+                        floorMap3D.setRoomProb(10, 0.4);
+                        floorMap3D.setRoomProb(11, 0.4);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 0.3);
+                        floorMap3D.setRoomProb(14, 0.3);
+                        floorMap3D.setRoomProb(15, 0.1);
+                        floorMap3D.setRoomProb(16, 0.0);
+                        floorMap3D.setRoomProb(17, 0.0);
+                        floorMap3D.setRoomProb(18, 0.0);
+                        floorMap3D.setRoomProb(19, 0.0);
+                        floorMap3D.setRoomProb(20, 0.0);
+                        break;
+                    case 5:
+                        floorMap3D.setRoomProb(1, 0.0);
+                        floorMap3D.setRoomProb(2, 0.0);
+                        floorMap3D.setRoomProb(3, 0.0);
+                        floorMap3D.setRoomProb(4, 0.0);
+                        floorMap3D.setRoomProb(5, 0.0);
+                        floorMap3D.setRoomProb(6, 0.0);
+                        floorMap3D.setRoomProb(7, 0.0);
+                        floorMap3D.setRoomProb(8, 0.0);
+                        floorMap3D.setRoomProb(9, 0.0);
+                        floorMap3D.setRoomProb(10, 0.0);
+                        floorMap3D.setRoomProb(11, 0.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 0.0);
+                        floorMap3D.setRoomProb(14, 0.0);
+                        floorMap3D.setRoomProb(15, 0.0);
+                        floorMap3D.setRoomProb(16, 0.0);
+                        floorMap3D.setRoomProb(17, 0.0);
+                        floorMap3D.setRoomProb(18, 0.0);
+                        floorMap3D.setRoomProb(19, 0.0);
+                        floorMap3D.setRoomProb(20, 0.0);
+                        break;
+
+
+                }
+                if(testState > 5) testState = 0;
             }
         });
 
