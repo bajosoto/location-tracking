@@ -47,14 +47,17 @@ public class MainActivity extends Activity implements SensorEventListener {
     /* The number of access points we are taking into consideration */
     private static final int numSSIDs = 5;
     /* The number of RSS levels (e.g. 0..255) we are taking into consideration */
-    private static final int numRSSLvl = 100;
+    private static final int numRSSLvl = 50;
     /* The number of cells we are taking into consideration */
     private static final int numRooms = 3;
+    /* The number of samples per room we will be taking */
+    private static final int numScans = 30;
 
     private static String scanReqSender = "";
     private static Vector<RSSPoint> refPoints = new Vector();
     private List<ScanResult> scanResults;
 
+    // Stores the number of samples acquired for a given room
     private int sampleCount = 0;
 
     private static final int numACCSamples = 80;
@@ -161,8 +164,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // init 3D map
-        floorMap3D = new FloorMap(this, this);
+        // init 3D map TODO: Enable this back
+        // floorMap3D = new FloorMap(this, this);
 
         // Check for writing permission to external memory of the device
         if (isExternalStorageWritable())
@@ -216,8 +219,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                scanResults = wifiManager.getScanResults();
 
+                scanResults = wifiManager.getScanResults();
 
                 Collections.sort(scanResults, new Comparator<ScanResult>() {
                     @Override
@@ -241,21 +244,30 @@ public class MainActivity extends Activity implements SensorEventListener {
 
 
                 if (scanReqSender == "rssi"){
-                    scanReqSender = "";
+
                     // ========================================================================
                     // PMF
                     // ========================================================================
                     // Add current scan results to pmf training
                     pmf.addScanResults(scanResults, Integer.parseInt(tbRoomName.getText().toString()));
-                    textBayes.setText("Acquired! (" + sampleCount + ")");
+                    textBayes.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
 
                     // ========================================================================
                     // KNN
                     // ========================================================================
                     refPoints.addElement(point);
-                    textRssi.setText("Acquired! (" + sampleCount + ")");
+                    textRssi.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
 
-                    sampleCount++;
+                    // Check if we still have more scans in this room to do
+                    if (sampleCount < numScans) {
+                        sampleCount++;
+                        wifiManager.startScan();
+                    } else {
+                        textRssi.setText("Finished Aquiring! (" + (sampleCount) + " samples)");
+                        textBayes.setText("Finished Aquiring! (" + (sampleCount) + " samples)");
+                        sampleCount = 0;
+                        scanReqSender = "";
+                    }
 
                 } else if (scanReqSender == "location") {
                     scanReqSender = "";
