@@ -25,6 +25,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,13 +46,15 @@ import static com.example.administrator.smartphonesensing.LogWriter.isExternalSt
 public class MainActivity extends Activity implements SensorEventListener {
 
     /* The number of access points we are taking into consideration */
-    private static final int numSSIDs = 5;
+    private static int numSSIDs = 3;
     /* The number of RSS levels (e.g. 0..255) we are taking into consideration */
-    private static final int numRSSLvl = 50;
+    private static int numRSSLvl = 100;
     /* The number of cells we are taking into consideration */
-    private static final int numRooms = 3;
+    private static int numRooms = 3;
     /* The number of samples per room we will be taking */
-    private static final int numScans = 30;
+    private static int numScans = 50;
+    /* The room we're currently training */
+    private static int trainRoom = 0;
 
     private static String scanReqSender = "";
     private static Vector<RSSPoint> refPoints = new Vector();
@@ -70,6 +73,7 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     LogWriter logAcc = new LogWriter("logAcc.txt");
     LogWriter logRss = new LogWriter("logRss.txt");
+
 
     ProbMassFuncs pmf = new ProbMassFuncs(numRooms, numRSSLvl);
     // floorMap3D cannot be initialized here since it needs the Activity to be initialized first
@@ -112,11 +116,15 @@ public class MainActivity extends Activity implements SensorEventListener {
     /**
      * Text fields to show the sensor values.
      */
-    private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc, textBayes;
-    private EditText tbRoomName;
+    private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc, textBayes,
+            titleCfgApNum, titleCfgRssLvlNum, titleCfgRoomsNum, titleCfgScansNum, titleTrainRoomNum,
+            textTraining;
+    // private EditText tbRoomName;
 
     Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayes,
-    buttonLocationBayes, buttonTest;
+    buttonLocationBayes, buttonTest, buttonCfgApSubst, buttonCfgApAdd, buttonCfgRssLvlSubst,
+            buttonCfgRssLvlAdd, buttonCfgRoomsSubst, buttonCfgRoomsAdd, buttonCfgScansSubst,
+            buttonCfgScansAdd, buttonTrainRoomSubs, buttonTrainRoomAdd;
 
     //AppCompatActivity appCompatActivity;
 
@@ -182,6 +190,18 @@ public class MainActivity extends Activity implements SensorEventListener {
         textRssi = (TextView) findViewById(R.id.textRSSI);
         textAcc = (TextView) findViewById(R.id.textAcc);
         textBayes = (TextView) findViewById(R.id.textBAYES);
+        titleCfgApNum = (TextView) findViewById(R.id.titleCfgApNum);
+        titleCfgRssLvlNum = (TextView) findViewById(R.id.titleCfgRssLvlNum);
+        titleCfgRoomsNum = (TextView) findViewById(R.id.titleCfgRoomsNum);
+        titleCfgScansNum = (TextView) findViewById(R.id.titleCfgScansNum);
+        titleTrainRoomNum = (TextView) findViewById(R.id.titleTrainRoomNum);
+        textTraining = (TextView) findViewById(R.id.textTraining);
+
+        titleCfgApNum.setText(" " + numSSIDs + " ");
+        titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
+        titleCfgRoomsNum.setText(" " + numRooms + " ");
+        titleCfgScansNum.setText(" " + numScans + " ");
+        titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
 
         // Create the buttons
         buttonRssi = (Button) findViewById(R.id.buttonRSSI);
@@ -192,8 +212,19 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonBayes = (Button) findViewById(R.id.buttonBAYES);
         buttonLocationBayes = (Button) findViewById(R.id.buttonLocationBAYES);
         buttonTest = (Button) findViewById(R.id.buttonTest);
+        buttonCfgApSubst = (Button) findViewById(R.id.buttonCfgApSubst);
+        buttonCfgApAdd = (Button) findViewById(R.id.buttonCfgApAdd);
+        buttonCfgRssLvlSubst = (Button) findViewById(R.id.buttonCfgRssLvlSubst);
+        buttonCfgRssLvlAdd = (Button) findViewById(R.id.buttonCfgRssLvlAdd);
+        buttonCfgRoomsSubst = (Button) findViewById(R.id.buttonCfgRoomsSubst);
+        buttonCfgRoomsAdd = (Button) findViewById(R.id.buttonCfgRoomsAdd);
+        buttonCfgScansSubst = (Button) findViewById(R.id.buttonCfgScansSubst);
+        buttonCfgScansAdd = (Button) findViewById(R.id.buttonCfgScansAdd);
+        buttonTrainRoomSubs = (Button) findViewById(R.id.buttonTrainRoomSubs);
+        buttonTrainRoomAdd = (Button) findViewById(R.id.buttonTrainRoomAdd);
 
-        tbRoomName = (EditText) findViewById(R.id.tbRoomName);
+
+        // tbRoomName = (EditText) findViewById(R.id.tbRoomName);
 
         logAcc.clearFile();
         logRss.clearFile();
@@ -234,10 +265,11 @@ public class MainActivity extends Activity implements SensorEventListener {
                 scanResults = scanResults.subList(0, foundAPs >= numSSIDs ? numSSIDs : foundAPs);
                 String line = "";
 
-                RSSPoint point = new RSSPoint(tbRoomName.getText().toString());
+                //RSSPoint point = new RSSPoint(tbRoomName.getText().toString());
+                RSSPoint point = new RSSPoint(Integer.toString(trainRoom));
 
                 for (ScanResult s : scanResults) {
-                    line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, numRSSLvl) + "\n";
+                    line += "Room " + (trainRoom + 1) + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, numRSSLvl) + "\n";
                     point.addAP(s.BSSID, s.level);
                 }
                 line += "\n";
@@ -249,22 +281,27 @@ public class MainActivity extends Activity implements SensorEventListener {
                     // PMF
                     // ========================================================================
                     // Add current scan results to pmf training
-                    pmf.addScanResults(scanResults, Integer.parseInt(tbRoomName.getText().toString()));
-                    textBayes.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
+                    pmf.addScanResults(scanResults, trainRoom);
+                    // textBayes.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
 
                     // ========================================================================
                     // KNN
                     // ========================================================================
                     refPoints.addElement(point);
-                    textRssi.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
+                    // textRssi.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
 
+
+                    textTraining.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
                     // Check if we still have more scans in this room to do
                     if (sampleCount < numScans) {
                         sampleCount++;
                         wifiManager.startScan();
                     } else {
-                        textRssi.setText("Finished Aquiring! (" + (sampleCount) + " samples)");
-                        textBayes.setText("Finished Aquiring! (" + (sampleCount) + " samples)");
+                        // textRssi.setText("Finished Aquiring!");
+                        // textBayes.setText("Finished Aquiring!");
+                        textTraining.setText("Finished Aquiring!");
+                        Toast.makeText(MainActivity.this, "Acquired " + (sampleCount) + " samples from room "
+                                + (trainRoom + 1), Toast.LENGTH_SHORT).show();
                         sampleCount = 0;
                         scanReqSender = "";
                     }
@@ -277,7 +314,10 @@ public class MainActivity extends Activity implements SensorEventListener {
                     textRssi.setText("You are in " + knn(point, refPoints));
                 } else if (scanReqSender == "locationbayes") {
                     scanReqSender = "";
-                    textBayes.setText("I think you are in " + pmf.findLocation(scanResults));
+                    int estimatedLocationCell = pmf.findLocation(scanResults);
+                    String estimatedProb = String.format("%.2f", pmf.getPxPrePost(estimatedLocationCell) * 100);
+                    textBayes.setText("I'm " + estimatedProb +
+                            "% sure you are in room " + (estimatedLocationCell + 1));
                 }
 
 
@@ -327,9 +367,11 @@ public class MainActivity extends Activity implements SensorEventListener {
                 // PMF
                 // ========================================================================
                 // Calculate gaussian curves for all
-                textBayes.setText("Calculating Gaussian distributions...");
+                // textBayes.setText("Calculating Gaussian distributions...");
+                textTraining.setText("Calculating Gaussian distributions...");
                 pmf.calcGauss();
-                textBayes.setText("Done!");
+                // textBayes.setText("Gaussian distributions stored.");
+                textTraining.setText("Gaussian distributions stored.");
             }
         });
 
@@ -360,7 +402,107 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
         });
 
+        // Create a click listener for our button.
+        buttonCfgApSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numSSIDs > 1){
+                    numSSIDs -= 1;
+                    titleCfgApNum.setText(" " + numSSIDs + " ");
+                }
+            }
+        });
 
+        // Create a click listener for our button.
+        buttonCfgApAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numSSIDs += 1;
+                titleCfgApNum.setText(" " + numSSIDs + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRssLvlSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numRSSLvl > 10){
+                    numRSSLvl -= 10;
+                    titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRssLvlAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numRSSLvl += 10;
+                titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRoomsSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numRooms > 2){
+                    numRooms -= 1;
+                    titleCfgRoomsNum.setText(" " + numRooms + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRoomsAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numRooms += 1;
+                titleCfgRoomsNum.setText(" " + numRooms + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgScansSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numScans > 10){
+                    numScans -= 10;
+                    titleCfgScansNum.setText(" " + numScans + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgScansAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numScans += 10;
+                titleCfgScansNum.setText(" " + numScans + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonTrainRoomSubs.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (trainRoom > 0){
+                    trainRoom -= 1;
+                    titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonTrainRoomAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (trainRoom < numRooms - 1) {
+                    trainRoom += 1;
+                    titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
+                }
+            }
+        });
 
         // Create a click listener for our button.
         buttonTest.setOnClickListener(new OnClickListener() {

@@ -1,7 +1,9 @@
 package com.example.administrator.smartphonesensing;
 
+import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,63 +23,67 @@ import static android.net.wifi.WifiManager.calculateSignalLevel;
  * Created by Sergio on 6/1/17.
  */
 
-public class ProbMassFuncs implements Serializable {
+public class ProbMassFuncs implements Serializable{
     private Map<String, TableRss> tablesRss;
     private StoredPMF pmf;
     private PerceptionModel pm;
     private int numCells;
     private int numRssLevels;
     LogWriter logPmf = new LogWriter("logPmf.txt");
+    private File root, dir;
+    private static final String DIR_NAME = "SmartPhoneSensing";
+    private Context context;
 
 
     public ProbMassFuncs(int numCells, int numRssLevels) {
         this.tablesRss = new HashMap<String, TableRss>();
-        this.pmf = new StoredPMF();
         this.pm = new PerceptionModel(numCells, numRssLevels);
         this.numCells = numCells;
         this.numRssLevels = numRssLevels;
-        this.logPmf.clearFile();
+        this.root = android.os.Environment.getExternalStorageDirectory();
+        this.dir = new File(root.getAbsolutePath() + "/" + DIR_NAME);
+        this.loadPMF();
     }
 
     public void storePMF() {
         // Serialize the pmf
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(this.logPmf.getDir() + "/storedPMF.bin")); //Select where you wish to save the file...
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(this.dir, "/storedPMF.bin"))); //Select where you wish to save the file...
             oos.writeObject(this.pmf); // write the class as an 'object'
             oos.flush(); // flush the stream to insure all of the information was written to 'storedPMF.bin'
             oos.close();// close the stream
+            logPmf.writeToFile("File saved successfully. \n", true);
         }
         catch(Exception ex) {
+            logPmf.writeToFile("Error writing to file. \n" + ex.toString(), true);
             ex.printStackTrace();
         }
+    }
+
+    // Get the post (or prev) probability calculated for a given cell. This accesses the perception model
+    // and will be used to update the graphic map from the floor map. Also to update the label from
+    // the main activity
+    public double getPxPrePost(int cell) {
+        return this.pm.getPxPrePost(cell);
     }
 
     public void loadPMF() {
         // Load serialized pmf
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(this.logPmf.getDir() + "/storedPMF.bin"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(this.dir, "/storedPMF.bin")));
             Object o = ois.readObject();
             this.pmf = (StoredPMF) o;
+            logPmf.writeToFile("File loaded successfully. \n", true);
         }
         catch(Exception ex) {
+            logPmf.writeToFile("Error loading file. Generating new pmf... \n" + ex.toString(), true);
+            this.pmf = new StoredPMF();
             ex.printStackTrace();
         }
-        this.pmf = null;
     }
 
-    public Object loadSerializedObject(File f) {
-        try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream(f));
-            Object o = ois.readObject();
-            return o;
-        }
-        catch(Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
-    }
     // Write PMF contents into a readable .txt log file
-    public void logPMF(){
+    public void logPMF() {
         logPmf.writeToFile("========================: \n", true);
         logPmf.writeToFile("Raw RSS DATA: \n", true);
         logPmf.writeToFile("========================: \n", true);
@@ -150,7 +156,9 @@ public class ProbMassFuncs implements Serializable {
             // Add the gaussian table to the gaussian tables hashmap
             this.pmf.tablesGauss.put(key, gTable);
         }
+        this.logPmf.clearFile();
         this.logPMF();
+        this.storePMF();
     }
 
     // Attempt to find the current location. It performs a single measurement iteration with n
@@ -162,6 +170,8 @@ public class ProbMassFuncs implements Serializable {
 
         // Guessed location
         int loc = 0;
+        // Print a new iteration to log
+        pm.printNewIter();
         // One iteration per scan result
         for (ScanResult s : scanResults) {
             loc = pm.updateBelief(s, numRssLevels);
@@ -171,23 +181,10 @@ public class ProbMassFuncs implements Serializable {
     }
 
     /**
-     * StoredPMF is the stored trained data.
-     */
-    private class StoredPMF {
-        private Map<String, TableGaussian> tablesGauss;
-        private Vector<String> ap_keys;
-
-        public StoredPMF() {
-            this.tablesGauss = new HashMap<String, TableGaussian>();
-            this.ap_keys = new Vector<String>();
-        }
-    }
-
-    /**
      * TableGaussian holds the gaussian pairs representing the normal distribution curves for each cell.
      * This object is instantiated for each sensed SSID during training.
      */
-    class TableGaussian {
+    class TableGaussian implements Serializable{
         // Gaussian pairs for each cell
         private GaussianPair values[];
         // Number of cells
@@ -238,7 +235,7 @@ public class ProbMassFuncs implements Serializable {
      * TableRss holds the histogram with the frequencies of RSS levels measured in each cell. One of
      * these table objects is instantiated for each SSID sensed by the application during training.
      */
-    public class TableRss {
+    public class TableRss implements Serializable{
         // Histogram of cell vs rss frequencies
         private int values[][];
         // Number of cells
@@ -308,7 +305,7 @@ public class ProbMassFuncs implements Serializable {
     /**
      * GaussianPair holds the mean and variance values of a normal distribution
      */
-    public class GaussianPair {
+    public class GaussianPair implements Serializable{
         private double mean;
         private double variance;
 
@@ -331,9 +328,23 @@ public class ProbMassFuncs implements Serializable {
     }
 
     /**
+     * StoredPMF is the stored trained data.
+     */
+    public class StoredPMF implements Serializable {
+        public Map<String, ProbMassFuncs.TableGaussian> tablesGauss;
+        public Vector<String> ap_keys;
+        private static final long serialVersionUID = 46543445;
+
+        public StoredPMF() {
+            this.tablesGauss = new HashMap<String, ProbMassFuncs.TableGaussian>();
+            this.ap_keys = new Vector<String>();
+        }
+    }
+
+    /**
      * Perception Model uses Bayesian filtering to update the believed current location
      */
-    public class PerceptionModel {
+    public class PerceptionModel implements Serializable {
         // Current room we believe we are in
         private int current_belief;
         // Probability of being at each room x from previous iteration
@@ -368,6 +379,16 @@ public class ProbMassFuncs implements Serializable {
             }
         }
 
+        public double getPxPrePost(int cell) {
+            return this.p_x_prior[cell];
+        }
+
+        public void printNewIter() {
+            logBayes.writeToFile("============================================================\n", true);
+            logBayes.writeToFile("New iteration\n", true);
+            logBayes.writeToFile("============================================================\n", true);
+        }
+
         // Update current belief using bayesian filtering
         public int updateBelief(ScanResult s, int numRssLevels) {
             logBayes.writeToFile("------------------------------------------------------------\n", true);
@@ -379,7 +400,7 @@ public class ProbMassFuncs implements Serializable {
                 double tot_p_wifi = 0;
 
                 // Print prior belief
-                printArray(p_x_prior, "Prior", this.numCells);
+                printArray(p_x_prior, "Prior\t\t\t", this.numCells);
 
                 for (int i = 0; i < this.numCells; i++) {
                     // Update p(z|x)
@@ -400,12 +421,12 @@ public class ProbMassFuncs implements Serializable {
                     }
                 }
 
-                printArray(this.p_z_x, "p(z|x)", this.numCells);
+                printArray(this.p_z_x, "p(z|x)\t\t", this.numCells);
                 printArray(this.p_wifi, "p(z|x)*p(x)", this.numCells);
                 if(tot_p_wifi == 0){
                     logBayes.writeToFile("\t~This SSID was ignored since p(z|x) * p(x) was 0~\n", true);
                 }
-                printArray(this.p_x_prior, "Post", this.numCells);
+                printArray(this.p_x_prior, "Post\t\t\t", this.numCells);
 
                 // Find highest probability
                 double max = 0;
@@ -427,7 +448,7 @@ public class ProbMassFuncs implements Serializable {
         public void printArray(double[] a, String title, int numCells) {
             String line = title + "\t";
             for(int i = 0; i < numCells; i++) {
-                line += a[i] + "\t";
+                line += String.format("%.6f", a[i]) + "\t";
             }
             line += "\n";
             logBayes.writeToFile(line, true);

@@ -5,6 +5,7 @@ import android.os.Environment;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -12,7 +13,7 @@ import java.util.Date;
  * Created by Sergio on 6/2/17.
  */
 
-public class LogWriter {
+public class LogWriter implements Serializable{
 
     private String fileName;
     private File root, dir;

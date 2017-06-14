@@ -40,11 +40,7 @@
                 android:orientation="horizontal"
                 android:gravity="center|top"
                 android:weightSum="1">
-                <Button
-                    android:id="@+id/buttonRSSI"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Get RSSI Data" />
+
                 <Button
                     android:id="@+id/buttonLocation"
                     android:layout_width="wrap_content"
@@ -78,15 +74,15 @@
                 android:gravity="center|top"
                 android:weightSum="1">
                 <Button
-                    android:id="@+id/buttonBAYES"
+                    android:id="@+id/buttonBAYESIter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Compile" />
+                    android:text="New" />
                 <Button
                     android:id="@+id/buttonLocationBAYES"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Where am I?" />
+                    android:text="Iterate" />
             </LinearLayout>
 
             <TextView
@@ -102,33 +98,320 @@
                 android:gravity="center|top"
                 android:weightSum="1">
 
-                <TextView
-                    android:id="@+id/roomName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="30dp"
-                    android:layout_gravity="center"
-                    android:text="Room Name: "
-                    android:textSize="20dp" />
+                <!--<TextView-->
+                    <!--android:id="@+id/roomName"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="30dp"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:text="Room Name: "-->
+                    <!--android:textSize="20dp" />-->
 
-                <EditText
-                    android:id="@+id/tbRoomName"
-                    android:layout_width="167dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:ems="10"
-                    android:inputType="textPersonName"
-                    android:text="1" />
+                <!--<EditText-->
+                    <!--android:id="@+id/tbRoomName"-->
+                    <!--android:layout_width="167dp"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="center"-->
+                    <!--android:ems="10"-->
+                    <!--android:inputType="textPersonName"-->
+                    <!--android:text="1" />-->
             </LinearLayout>
 
+
+
+            <!--  ====================================== -->
+            <!--  ====================================== -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#ffffff"/>
             <TextView
-                android:id="@+id/titleAcc"
+                android:id="@+id/titleCONFIG"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="CONFIGURATION"
+                android:textSize="20dp"
+                android:background="#3f51b5"
+                android:textColor="#ffffff"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#303f9f"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#ffffff"/>
+            <!--  ====================================== -->
+            <!--  ====================================== -->
+
+
+            <TextView
+                android:id="@+id/titleCfgAp"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:text="ACCESS POINTS"
+                android:textSize="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1"
+                android:textSize="20dp">
+
+                <Button
+                    android:id="@+id/buttonCfgApSubst"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&lt;" />
+
+                <TextView
+                    android:id="@+id/titleCfgApNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text=" 99 "
+                    android:textSize="20dp" />
+
+                <Button
+                    android:id="@+id/buttonCfgApAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&gt;" />
+            </LinearLayout>
+
+            <!--  ====================================== -->
+
+            <TextView
+                android:id="@+id/titleCfgRssLvl"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:text="RSS LEVELS"
+                android:textSize="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1"
+                android:textSize="20dp">
+
+                <Button
+                    android:id="@+id/buttonCfgRssLvlSubst"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&lt;" />
+
+                <TextView
+                    android:id="@+id/titleCfgRssLvlNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text=" 999 "
+                    android:textSize="20dp" />
+
+                <Button
+                    android:id="@+id/buttonCfgRssLvlAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&gt;" />
+            </LinearLayout>
+
+            <!--  ====================================== -->
+
+            <TextView
+                android:id="@+id/titleCfgRooms"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:text="ROOMS"
+                android:textSize="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1"
+                android:textSize="20dp">
+
+                <Button
+                    android:id="@+id/buttonCfgRoomsSubst"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&lt;" />
+
+                <TextView
+                    android:id="@+id/titleCfgRoomsNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text=" 99 "
+                    android:textSize="20dp" />
+
+                <Button
+                    android:id="@+id/buttonCfgRoomsAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&gt;" />
+            </LinearLayout>
+
+            <!--  ====================================== -->
+
+            <TextView
+                android:id="@+id/titleCfgScans"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:text="SCANS"
+                android:textSize="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1"
+                android:textSize="20dp">
+
+                <Button
+                    android:id="@+id/buttonCfgScansSubst"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&lt;" />
+
+                <TextView
+                    android:id="@+id/titleCfgScansNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text=" 999 "
+                    android:textSize="20dp" />
+
+                <Button
+                    android:id="@+id/buttonCfgScansAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&gt;" />
+            </LinearLayout>
+
+
+
+
+
+            <!--  ====================================== -->
+            <!--  ====================================== -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#ffffff"/>
+            <TextView
+                android:id="@+id/titleTRAINING"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="DATA TRAINING"
+                android:textSize="20dp"
+                android:background="#3f51b5"
+                android:textColor="#ffffff"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#303f9f"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#ffffff"/>
+            <!--  ====================================== -->
+            <!--  ====================================== -->
+
+
+            <TextView
+                android:id="@+id/titleTrainRoom"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:layout_gravity="center"
+                android:text="ROOM NUMBER"
+                android:textSize="12dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1"
+                android:textSize="20dp">
+
+                <Button
+                    android:id="@+id/buttonTrainRoomSubs"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&lt;" />
+
+                <TextView
+                    android:id="@+id/titleTrainRoomNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text=" 99 "
+                    android:textSize="20dp" />
+
+                <Button
+                    android:id="@+id/buttonTrainRoomAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&gt;" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/buttonRSSI"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="30dp"
-                android:text="Acceleration Value"
-                android:textSize="20dp" />
+                android:text="Get RSSI Data" />
+
+            <Button
+                android:id="@+id/buttonBAYES"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Compile" />
+
+            <TextView
+                android:id="@+id/textTraining"
+                android:layout_width="500dp"
+                android:layout_height="28dp"
+                android:gravity="center"
+                android:text="Get RSSI to begin training, Compile to consolidate data." />
+
+            <!--  ====================================== -->
+            <!--  ====================================== -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#ffffff"/>
+            <TextView
+                android:id="@+id/titleAcc"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="ACCELEROMETER"
+                android:textSize="20dp"
+                android:background="#3f51b5"
+                android:textColor="#ffffff"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="#303f9f"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="8dp"
+                android:background="#ffffff"/>
+            <!--  ====================================== -->
+            <!--  ====================================== -->
+
 
             <LinearLayout
                 android:layout_width="match_parent"
