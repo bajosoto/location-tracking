@@ -44,14 +44,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="450">
-      <file leaf-file-name="activity_main.xml" pinned="false" current-in-tab="false">
+      <file leaf-file-name="activity_main.xml" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
           <provider editor-type-id="android-designer2">
             <state />
           </provider>
           <provider selected="true" editor-type-id="text-editor">
+
             <state relative-caret-position="526">
               <caret line="382" column="45" selection-start-line="382" selection-start-column="33" selection-end-line="382" selection-end-column="45" />
+
               <folding />
             </state>
           </provider>
@@ -70,8 +72,10 @@
       <file leaf-file-name="MainActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/MainActivity.java">
           <provider selected="true" editor-type-id="text-editor">
+
             <state relative-caret-position="-1935">
               <caret line="77" column="22" selection-start-line="77" selection-start-column="22" selection-end-line="77" selection-end-column="22" />
+
               <folding>
                 <element signature="imports" expanded="true" />
                 <marker date="1497395500000" expanded="false" signature="9732:9847" ph="(context, intent) → {" />
@@ -98,9 +102,11 @@
       <file leaf-file-name="LogWriter.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/LogWriter.java">
           <provider selected="true" editor-type-id="text-editor">
+
             <state relative-caret-position="120">
               <caret line="15" column="46" selection-start-line="15" selection-start-column="46" selection-end-line="15" selection-end-column="46" />
               <folding />
+
             </state>
           </provider>
         </entry>
@@ -108,9 +114,11 @@
       <file leaf-file-name="RSSPoint.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/RSSPoint.java">
           <provider selected="true" editor-type-id="text-editor">
+
             <state relative-caret-position="120">
               <caret line="9" column="13" selection-start-line="9" selection-start-column="13" selection-end-line="9" selection-end-column="13" />
               <folding />
+
             </state>
           </provider>
         </entry>
@@ -1615,7 +1623,9 @@
         <entry key="$PROJECT_DIR$" value="4483616942000" />
         <entry key="C:\Users\Administrator\Documents\SmartPhoneSensing" value="4483565403391" />
         <entry key="C:\Users\Administrator\Documents\SmartPhoneSensing\location-tracking" value="4483582597596" />
+
         <entry key="C:\Users\Sergio\Desktop\sps\repo\location-tracking" value="4489715236032" />
+
       </map>
     </option>
     <option name="projectBuildClasspath">
@@ -1980,6 +1990,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+
       <pane id="AndroidView">
         <subPane>
           <PATH>
@@ -1988,6 +1999,7 @@
               <option name="myItemType" value="com.android.tools.idea.navigator.nodes.AndroidViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
+
           <PATH>
             <PATH_ELEMENT>
               <option name="myItemId" value="location-tracking" />
@@ -2070,12 +2082,14 @@
       </pane>
       <pane id="Scope" />
       <pane id="Scratches" />
+
       <pane id="ProjectPane">
         <subPane />
       </pane>
       <pane id="PackagesPane">
         <subPane />
       </pane>
+
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -2469,7 +2483,9 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
+
     <frame x="0" y="0" width="1920" height="1080" extended-state="0" />
+
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -2477,7 +2493,9 @@
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3286119" sideWeight="0.503231" order="7" side_tool="true" content_ui="tabs" />
+
       <window_info id="Android Monitor" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.27991885" sideWeight="0.4454054" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.42172524" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3292683" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -2488,6 +2506,7 @@
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18129331" sideWeight="0.50216216" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.106496274" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3275862" sideWeight="0.49676898" order="1" side_tool="false" content_ui="tabs" />
+
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Android Model" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
@@ -2500,6 +2519,7 @@
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -2544,6 +2564,7 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
+
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="612">
           <caret line="36" column="4" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="4" />
@@ -2551,6 +2572,7 @@
         </state>
       </provider>
       <provider editor-type-id="android-designer2">
+
         <state />
       </provider>
     </entry>
@@ -2565,7 +2587,9 @@
         </state>
       </provider>
     </entry>
+
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
+
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -2589,8 +2613,10 @@
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
+
             <element signature="imports" expanded="true" />
             <marker date="1497395500000" expanded="false" signature="9732:9847" ph="(context, intent) → {" />
+
           </folding>
         </state>
       </provider>
@@ -2599,6 +2625,7 @@
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/java/util/List.java" />
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/WifiManager.java" />
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
+
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="675">
           <caret line="45" column="17" selection-start-line="45" selection-start-column="9" selection-end-line="45" selection-end-column="17" />
@@ -2606,6 +2633,7 @@
         </state>
       </provider>
       <provider editor-type-id="android-designer2">
+
         <state />
       </provider>
     </entry>
@@ -2620,7 +2648,9 @@
         </state>
       </provider>
     </entry>
+
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/java/io/FileWriter.java" />
+
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
@@ -2638,14 +2668,18 @@
           <caret line="215" column="19" selection-start-line="215" selection-start-column="19" selection-end-line="215" selection-end-column="19" />
           <folding>
             <element signature="imports" expanded="true" />
+
             <marker date="1497395500000" expanded="false" signature="9732:9847" ph="(context, intent) → {" />
+
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
+
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="645">
+
           <caret line="43" column="31" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
           <folding />
         </state>
@@ -2667,6 +2701,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/AndroidManifest.xml">
       <provider selected="true" editor-type-id="text-editor">
+
         <state relative-caret-position="240">
           <caret line="16" column="40" selection-start-line="16" selection-start-column="40" selection-end-line="16" selection-end-column="40" />
           <folding />
@@ -2678,6 +2713,7 @@
         <state relative-caret-position="645">
           <caret line="43" column="31" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
           <folding />
+
         </state>
       </provider>
       <provider editor-type-id="android-designer2">
@@ -2688,6 +2724,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+
           <folding>
             <element signature="imports" expanded="true" />
             <marker date="1497395500000" expanded="false" signature="9732:9847" ph="(context, intent) → {" />
@@ -2708,6 +2745,7 @@
         <state relative-caret-position="645">
           <caret line="43" column="31" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
           <folding />
+
         </state>
       </provider>
       <provider editor-type-id="android-designer2">
@@ -2718,6 +2756,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+
           <folding>
             <element signature="imports" expanded="true" />
             <marker date="1497395500000" expanded="false" signature="9732:9847" ph="(context, intent) → {" />
@@ -2738,6 +2777,7 @@
         <state relative-caret-position="645">
           <caret line="43" column="31" selection-start-line="43" selection-start-column="31" selection-end-line="43" selection-end-column="31" />
           <folding />
+
         </state>
       </provider>
     </entry>
@@ -2760,6 +2800,7 @@
         </state>
       </provider>
     </entry>
+
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
       <provider editor-type-id="text-editor">
         <state relative-caret-position="1075">
@@ -2804,6 +2845,7 @@
         <state />
       </provider>
     </entry>
+
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/content/BroadcastReceiver.java" />
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/java/io/FileWriter.java" />
     <entry file="file://$USER_HOME$/Library/Android/sdk/sources/android-25/android/net/wifi/ScanResult.java" />
@@ -2814,6 +2856,7 @@
         <state relative-caret-position="540">
           <caret line="36" column="4" selection-start-line="30" selection-start-column="29" selection-end-line="30" selection-end-column="43" />
           <folding />
+
         </state>
       </provider>
       <provider editor-type-id="android-designer2">
@@ -2862,6 +2905,7 @@
         <state relative-caret-position="526">
           <caret line="382" column="45" selection-start-line="382" selection-start-column="33" selection-end-line="382" selection-end-column="45" />
           <folding />
+
         </state>
       </provider>
       <provider editor-type-id="android-designer2">
@@ -2870,9 +2914,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/LogWriter.java">
       <provider selected="true" editor-type-id="text-editor">
+
         <state relative-caret-position="120">
           <caret line="15" column="46" selection-start-line="15" selection-start-column="46" selection-end-line="15" selection-end-column="46" />
           <folding />
+
         </state>
       </provider>
     </entry>
@@ -2905,8 +2951,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/example/administrator/smartphonesensing/ProbMassFuncs.java">
       <provider selected="true" editor-type-id="text-editor">
+
         <state relative-caret-position="502">
           <caret line="379" column="9" selection-start-line="379" selection-start-column="9" selection-end-line="379" selection-end-column="9" />
+
           <folding>
             <element signature="e#2410#2411#0" expanded="true" />
             <element signature="e#2459#2460#0" expanded="true" />
@@ -2914,6 +2962,17 @@
             <element signature="e#14685#14686#0" expanded="true" />
           </folding>
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_main.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="801">
+          <caret line="43" column="35" selection-start-line="43" selection-start-column="35" selection-end-line="43" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+      <provider editor-type-id="android-designer2">
+        <state />
       </provider>
     </entry>
   </component>

@@ -25,7 +25,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
+
 import android.widget.Toast;
+
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -84,6 +86,9 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
+    private static final String LOG_TAG = "MainActivity.LOG";
+    private static final boolean LOG_INFO = true;
+    private static final boolean LOG_ERR = true;
     /**
      * The sensor manager object.
      */
@@ -180,6 +185,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             checkWritingPermission();
 
         checkWifiPermission();
+
 
 
         // Create the text views.
@@ -657,6 +663,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 // permission was granted
             } else {
                 // permission wasn't granted
+                if(LOG_INFO) Log.i(LOG_TAG,"No Write Permission!!");
             }
         }
         if (requestCode == REQUEST_CODE_WIFI_PERMISSION) {
@@ -664,6 +671,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                 // permission was granted
             } else {
                 // permission wasn't granted
+                if(LOG_INFO) Log.i(LOG_TAG,"No WiFi Permission!!");
             }
         }
     }
@@ -672,6 +680,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // permission wasn't granted
+                if(LOG_INFO) Log.i(LOG_TAG,"No Write Permission!!");
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_PERMISSION);
             }
@@ -682,6 +691,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 // permission wasn't granted
+                if(LOG_INFO) Log.i(LOG_TAG,"No WiFi Permission!!");
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_WIFI_PERMISSION);
             }
@@ -767,6 +777,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     }
                 });
 
+
                 // Calculate peak to peak values
                 Float newX = Math.abs(xResults.get(0) - xResults.get(xResults.size() - 1));
                 Float newY = Math.abs(yResults.get(0) - yResults.get(yResults.size() - 1));
@@ -783,6 +794,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     textAcc.setText("Done!");
                     accPoints.add(newAccPoint);
                 }
+
 
                 currAccSample = 0;
                 xResults.clear();
