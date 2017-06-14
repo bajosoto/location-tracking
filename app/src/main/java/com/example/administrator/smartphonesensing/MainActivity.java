@@ -15,9 +15,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 //import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,19 +25,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
-
-import com.example.administrator.smartphonesensing.R;
+import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Vector;
+
+import static android.net.wifi.WifiManager.calculateSignalLevel;
+import static com.example.administrator.smartphonesensing.LogWriter.isExternalStorageWritable;
 
 /**
  * Smart Phone Sensing Data Acquisition Code
@@ -45,11 +46,42 @@ import java.util.Vector;
 public class MainActivity extends Activity implements SensorEventListener {
 
     /* The number of access points we are taking into consideration */
-    private static final int numSSIDs = 5;
-    private static Vector<ReferencePoint> refPoints = new Vector();
-    private static String scanReqSender = "";
+    private static int numSSIDs = 3;
+    /* The number of RSS levels (e.g. 0..255) we are taking into consideration */
+    private static int numRSSLvl = 100;
+    /* The number of cells we are taking into consideration */
+    private static int numRooms = 3;
+    /* The number of samples per room we will be taking */
+    private static int numScans = 50;
+    /* The room we're currently training */
+    private static int trainRoom = 0;
 
-    private static final String DIR_NAME = "SmartPhoneSensing";
+    private static String scanReqSender = "";
+    private static Vector<RSSPoint> refPoints = new Vector();
+    private List<ScanResult> scanResults;
+
+    // Stores the number of samples acquired for a given room
+    private int sampleCount = 0;
+
+    private static final int numACCSamples = 80;
+    private static int currAccSample = 0;
+    private static String accReqSender = "";
+    private static Vector<ACCPoint> accPoints = new Vector();
+    private List<Float> xResults = new Vector();
+    private List<Float> yResults = new Vector();
+    private List<Float> zResults = new Vector();
+
+    LogWriter logAcc = new LogWriter("logAcc.txt");
+    LogWriter logRss = new LogWriter("logRss.txt");
+
+
+    ProbMassFuncs pmf = new ProbMassFuncs(numRooms, numRSSLvl);
+    // floorMap3D cannot be initialized here since it needs the Activity to be initialized first
+    // so init is in OnCreate()
+    FloorMap floorMap3D;
+    int testState = 0; //TODO: Delete this
+
+
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
     /**
@@ -81,29 +113,26 @@ public class MainActivity extends Activity implements SensorEventListener {
      */
     private float aZ = 0;
 
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
-    String timestamp = simpleDateFormat.format(new Date());
-
-
     /**
      * Text fields to show the sensor values.
      */
-    private TextView currentX, currentY, currentZ, titleAcc, textRssi;
-    private EditText tbRoomName;
+    private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc, textBayes,
+            titleCfgApNum, titleCfgRssLvlNum, titleCfgRoomsNum, titleCfgScansNum, titleTrainRoomNum,
+            textTraining;
+    // private EditText tbRoomName;
 
-    Button buttonRssi, buttonLocation;
-
-    private File root, dir;
-    private String logFileNameAcc, logFileNameRSSI;
-    private List<ScanResult> scanResults;
+    Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayes,
+    buttonLocationBayes, buttonTest, buttonCfgApSubst, buttonCfgApAdd, buttonCfgRssLvlSubst,
+            buttonCfgRssLvlAdd, buttonCfgRoomsSubst, buttonCfgRoomsAdd, buttonCfgScansSubst,
+            buttonCfgScansAdd, buttonTrainRoomSubs, buttonTrainRoomAdd;
 
     //AppCompatActivity appCompatActivity;
 
-    public String knn(ReferencePoint refPoint, Vector<ReferencePoint> referencePoints) {
+    public String knn(RSSPoint refPoint, Vector<RSSPoint> RSSPoints) {
         int smallestDistance = 0;
         String label = "some place, somewhere...";
 
-        for (ReferencePoint rp : referencePoints){
+        for (RSSPoint rp : RSSPoints){
             textRssi.setText("Comparing" + refPoint.toString() + "/n With: " + rp.toString());
             int distance = 0;
             for (String key : refPoint.accessPoints.keySet()){
@@ -118,14 +147,33 @@ public class MainActivity extends Activity implements SensorEventListener {
         return label;
     }
 
+    public String knn(ACCPoint refPoint, Vector<ACCPoint> ACCPoints) {
+        int smallestDistance = 0;
+        String label = "some place, somewhere...";
+
+        for (ACCPoint ap : ACCPoints){
+
+            int distance = 0;
+            distance += Math.pow((refPoint.getX() - ap.getX()), 2);
+            distance += Math.pow((refPoint.getY() - ap.getY()), 2);
+            distance += Math.pow((refPoint.getZ() - ap.getZ()), 2);
+            distance = (int) Math.sqrt(distance);
+
+            if(smallestDistance == 0 || smallestDistance > distance) {
+                smallestDistance = distance;
+                label = ap.label;
+            }
+        }
+        return label;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // TODO: Remove hardcoded values maybe
-        logFileNameAcc = "logAcc.txt";
-        logFileNameRSSI = "logRSSI.txt";
+        // init 3D map TODO: Enable this back
+        // floorMap3D = new FloorMap(this, this);
 
         // Check for writing permission to external memory of the device
         if (isExternalStorageWritable())
@@ -133,12 +181,6 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         checkWifiPermission();
 
-        root = android.os.Environment.getExternalStorageDirectory();
-        dir = new File(root.getAbsolutePath() + "/" + DIR_NAME);
-        if (!dir.mkdirs())
-        {
-            // file not created
-        }
 
         // Create the text views.
         currentX = (TextView) findViewById(R.id.currentX);
@@ -146,14 +188,46 @@ public class MainActivity extends Activity implements SensorEventListener {
         currentZ = (TextView) findViewById(R.id.currentZ);
         titleAcc = (TextView) findViewById(R.id.titleAcc);
         textRssi = (TextView) findViewById(R.id.textRSSI);
+        textAcc = (TextView) findViewById(R.id.textAcc);
+        textBayes = (TextView) findViewById(R.id.textBAYES);
+        titleCfgApNum = (TextView) findViewById(R.id.titleCfgApNum);
+        titleCfgRssLvlNum = (TextView) findViewById(R.id.titleCfgRssLvlNum);
+        titleCfgRoomsNum = (TextView) findViewById(R.id.titleCfgRoomsNum);
+        titleCfgScansNum = (TextView) findViewById(R.id.titleCfgScansNum);
+        titleTrainRoomNum = (TextView) findViewById(R.id.titleTrainRoomNum);
+        textTraining = (TextView) findViewById(R.id.textTraining);
 
-        // Create the button
+        titleCfgApNum.setText(" " + numSSIDs + " ");
+        titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
+        titleCfgRoomsNum.setText(" " + numRooms + " ");
+        titleCfgScansNum.setText(" " + numScans + " ");
+        titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
+
+        // Create the buttons
         buttonRssi = (Button) findViewById(R.id.buttonRSSI);
         buttonLocation = (Button) findViewById(R.id.buttonLocation);
-        tbRoomName = (EditText) findViewById(R.id.tbRoomName);
+        buttonWalk = (Button) findViewById(R.id.buttonWalk);
+        buttonStand = (Button) findViewById(R.id.buttonStand);
+        buttonWalkOrStand = (Button) findViewById(R.id.buttonWalkOrStand);
+        buttonBayes = (Button) findViewById(R.id.buttonBAYES);
+        buttonLocationBayes = (Button) findViewById(R.id.buttonLocationBAYES);
+        buttonTest = (Button) findViewById(R.id.buttonTest);
+        buttonCfgApSubst = (Button) findViewById(R.id.buttonCfgApSubst);
+        buttonCfgApAdd = (Button) findViewById(R.id.buttonCfgApAdd);
+        buttonCfgRssLvlSubst = (Button) findViewById(R.id.buttonCfgRssLvlSubst);
+        buttonCfgRssLvlAdd = (Button) findViewById(R.id.buttonCfgRssLvlAdd);
+        buttonCfgRoomsSubst = (Button) findViewById(R.id.buttonCfgRoomsSubst);
+        buttonCfgRoomsAdd = (Button) findViewById(R.id.buttonCfgRoomsAdd);
+        buttonCfgScansSubst = (Button) findViewById(R.id.buttonCfgScansSubst);
+        buttonCfgScansAdd = (Button) findViewById(R.id.buttonCfgScansAdd);
+        buttonTrainRoomSubs = (Button) findViewById(R.id.buttonTrainRoomSubs);
+        buttonTrainRoomAdd = (Button) findViewById(R.id.buttonTrainRoomAdd);
 
-        clearFile(logFileNameRSSI, timestamp);
 
+        // tbRoomName = (EditText) findViewById(R.id.tbRoomName);
+
+        logAcc.clearFile();
+        logRss.clearFile();
 
         // Set the sensor manager
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -161,24 +235,24 @@ public class MainActivity extends Activity implements SensorEventListener {
         // if the default accelerometer exists
         if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
             // set accelerometer
-            accelerometer = sensorManager
-                    .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             // register 'this' as a listener that updates values. Each time a sensor value changes,
             // the method 'onSensorChanged()' is called.
             sensorManager.registerListener(this, accelerometer,
-                    SensorManager.SENSOR_DELAY_NORMAL);
+                    SensorManager.SENSOR_DELAY_GAME);
         } else {
             // No accelerometer!
         }
 
         // Set the wifi manager
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        //wifiManager.startScan();
 
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+
                 scanResults = wifiManager.getScanResults();
+
                 Collections.sort(scanResults, new Comparator<ScanResult>() {
                     @Override
                     public int compare(ScanResult lhs, ScanResult rhs) {
@@ -189,28 +263,65 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 int foundAPs = scanResults.size();
                 scanResults = scanResults.subList(0, foundAPs >= numSSIDs ? numSSIDs : foundAPs);
-                //String line = "";
+                String line = "";
 
-                ReferencePoint point = new ReferencePoint(tbRoomName.getText().toString());
+                //RSSPoint point = new RSSPoint(tbRoomName.getText().toString());
+                RSSPoint point = new RSSPoint(Integer.toString(trainRoom));
 
-                for (ScanResult s : scanResults)
-                {
-                    //line += tbRoomName.getText() + "\t" + s.BSSID + "\t" + s.level + "\n";
+                for (ScanResult s : scanResults) {
+                    line += "Room " + (trainRoom + 1) + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, numRSSLvl) + "\n";
                     point.addAP(s.BSSID, s.level);
                 }
+                line += "\n";
 
-                //textRssi.setText(point.toString());
+
                 if (scanReqSender == "rssi"){
+
+                    // ========================================================================
+                    // PMF
+                    // ========================================================================
+                    // Add current scan results to pmf training
+                    pmf.addScanResults(scanResults, trainRoom);
+                    // textBayes.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
+
+                    // ========================================================================
+                    // KNN
+                    // ========================================================================
                     refPoints.addElement(point);
-                    scanReqSender = "";
-                    textRssi.setText("Acquired!");
+                    // textRssi.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
+
+
+                    textTraining.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
+                    // Check if we still have more scans in this room to do
+                    if (sampleCount < numScans) {
+                        sampleCount++;
+                        wifiManager.startScan();
+                    } else {
+                        // textRssi.setText("Finished Aquiring!");
+                        // textBayes.setText("Finished Aquiring!");
+                        textTraining.setText("Finished Aquiring!");
+                        Toast.makeText(MainActivity.this, "Acquired " + (sampleCount) + " samples from room "
+                                + (trainRoom + 1), Toast.LENGTH_SHORT).show();
+                        sampleCount = 0;
+                        scanReqSender = "";
+                    }
+
                 } else if (scanReqSender == "location") {
-                    textRssi.setText("You are in " + knn(point, refPoints));
                     scanReqSender = "";
+                    // ========================================================================
+                    // KNN
+                    // ========================================================================
+                    textRssi.setText("You are in " + knn(point, refPoints));
+                } else if (scanReqSender == "locationbayes") {
+                    scanReqSender = "";
+                    int estimatedLocationCell = pmf.findLocation(scanResults);
+                    String estimatedProb = String.format("%.2f", pmf.getPxPrePost(estimatedLocationCell) * 100);
+                    textBayes.setText("I'm " + estimatedProb +
+                            "% sure you are in room " + (estimatedLocationCell + 1));
                 }
 
 
-                //writeToFile(logFileNameRSSI, line, true);
+                logRss.writeToFile(line, true);
                 //writeToFile(logFileNameRSSI, "--------------------------------------------\n", true);
             }
         }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -221,6 +332,7 @@ public class MainActivity extends Activity implements SensorEventListener {
             public void onClick(View v) {
                 scanReqSender = "rssi";
                 textRssi.setText("Acquiring...");
+                textBayes.setText("Acquiring...");
                 wifiManager.startScan();
             }
         });
@@ -229,10 +341,310 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonLocation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Add some way to identify which button is requesting the scan
+                // ========================================================================
+                // KNN
+                // ========================================================================
                 scanReqSender = "location";
                 textRssi.setText("Finding your location...");
                 wifiManager.startScan();
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonLocationBayes.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scanReqSender = "locationbayes";
+                textBayes.setText("Finding your location...");
+                wifiManager.startScan();
+            }
+        });
+
+        buttonBayes.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // ========================================================================
+                // PMF
+                // ========================================================================
+                // Calculate gaussian curves for all
+                // textBayes.setText("Calculating Gaussian distributions...");
+                textTraining.setText("Calculating Gaussian distributions...");
+                pmf.calcGauss();
+                // textBayes.setText("Gaussian distributions stored.");
+                textTraining.setText("Gaussian distributions stored.");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonWalk.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                accReqSender = "walking";
+                textAcc.setText("Start walking...");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonStand.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                accReqSender = "standing";
+                textAcc.setText("Stand still...");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonWalkOrStand.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                accReqSender = "walkorstand";
+                textAcc.setText("Tracking your movement...");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgApSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numSSIDs > 1){
+                    numSSIDs -= 1;
+                    titleCfgApNum.setText(" " + numSSIDs + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgApAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numSSIDs += 1;
+                titleCfgApNum.setText(" " + numSSIDs + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRssLvlSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numRSSLvl > 10){
+                    numRSSLvl -= 10;
+                    titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRssLvlAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numRSSLvl += 10;
+                titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRoomsSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numRooms > 2){
+                    numRooms -= 1;
+                    titleCfgRoomsNum.setText(" " + numRooms + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgRoomsAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numRooms += 1;
+                titleCfgRoomsNum.setText(" " + numRooms + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgScansSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (numScans > 10){
+                    numScans -= 10;
+                    titleCfgScansNum.setText(" " + numScans + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgScansAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                numScans += 10;
+                titleCfgScansNum.setText(" " + numScans + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonTrainRoomSubs.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (trainRoom > 0){
+                    trainRoom -= 1;
+                    titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonTrainRoomAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (trainRoom < numRooms - 1) {
+                    trainRoom += 1;
+                    titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
+                }
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonTest.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(testState++){
+                    case 0:
+                        floorMap3D.setRoomProb(1, 1.0);
+                        floorMap3D.setRoomProb(2, 1.0);
+                        floorMap3D.setRoomProb(3, 1.0);
+                        floorMap3D.setRoomProb(4, 1.0);
+                        floorMap3D.setRoomProb(5, 1.0);
+                        floorMap3D.setRoomProb(6, 1.0);
+                        floorMap3D.setRoomProb(7, 1.0);
+                        floorMap3D.setRoomProb(8, 1.0);
+                        floorMap3D.setRoomProb(9, 1.0);
+                        floorMap3D.setRoomProb(10, 1.0);
+                        floorMap3D.setRoomProb(11, 1.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 1.0);
+                        floorMap3D.setRoomProb(14, 1.0);
+                        floorMap3D.setRoomProb(15, 1.0);
+                        floorMap3D.setRoomProb(16, 1.0);
+                        floorMap3D.setRoomProb(17, 1.0);
+                        floorMap3D.setRoomProb(18, 1.0);
+                        floorMap3D.setRoomProb(19, 1.0);
+                        floorMap3D.setRoomProb(20, 1.0);
+                        break;
+                    case 1:
+                        floorMap3D.setRoomProb(1, 0.6);
+                        floorMap3D.setRoomProb(2, 0.7);
+                        floorMap3D.setRoomProb(3, 0.7);
+                        floorMap3D.setRoomProb(4, 0.8);
+                        floorMap3D.setRoomProb(5, 0.8);
+                        floorMap3D.setRoomProb(6, 0.9);
+                        floorMap3D.setRoomProb(7, 0.9);
+                        floorMap3D.setRoomProb(8, 0.9);
+                        floorMap3D.setRoomProb(9, 1.0);
+                        floorMap3D.setRoomProb(10, 1.0);
+                        floorMap3D.setRoomProb(11, 1.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 1.0);
+                        floorMap3D.setRoomProb(14, 1.0);
+                        floorMap3D.setRoomProb(15, 0.9);
+                        floorMap3D.setRoomProb(16, 0.9);
+                        floorMap3D.setRoomProb(17, 0.7);
+                        floorMap3D.setRoomProb(18, 0.7);
+                        floorMap3D.setRoomProb(19, 0.6);
+                        floorMap3D.setRoomProb(20, 0.6);
+                        break;
+                    case 2:
+                        floorMap3D.setRoomProb(1, 0.3);
+                        floorMap3D.setRoomProb(2, 0.5);
+                        floorMap3D.setRoomProb(3, 0.5);
+                        floorMap3D.setRoomProb(4, 0.6);
+                        floorMap3D.setRoomProb(5, 0.6);
+                        floorMap3D.setRoomProb(6, 0.7);
+                        floorMap3D.setRoomProb(7, 0.7);
+                        floorMap3D.setRoomProb(8, 0.7);
+                        floorMap3D.setRoomProb(9, 0.9);
+                        floorMap3D.setRoomProb(10, 0.9);
+                        floorMap3D.setRoomProb(11, 1.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 1.0);
+                        floorMap3D.setRoomProb(14, 0.7);
+                        floorMap3D.setRoomProb(15, 0.5);
+                        floorMap3D.setRoomProb(16, 0.5);
+                        floorMap3D.setRoomProb(17, 0.3);
+                        floorMap3D.setRoomProb(18, 0.3);
+                        floorMap3D.setRoomProb(19, 0.2);
+                        floorMap3D.setRoomProb(20, 0.2);
+                        break;
+                    case 3:
+                        floorMap3D.setRoomProb(1, 0.1);
+                        floorMap3D.setRoomProb(2, 0.2);
+                        floorMap3D.setRoomProb(3, 0.3);
+                        floorMap3D.setRoomProb(4, 0.3);
+                        floorMap3D.setRoomProb(5, 0.4);
+                        floorMap3D.setRoomProb(6, 0.3);
+                        floorMap3D.setRoomProb(7, 0.4);
+                        floorMap3D.setRoomProb(8, 0.3);
+                        floorMap3D.setRoomProb(9, 0.5);
+                        floorMap3D.setRoomProb(10, 0.6);
+                        floorMap3D.setRoomProb(11, 0.7);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 0.9);
+                        floorMap3D.setRoomProb(14, 0.5);
+                        floorMap3D.setRoomProb(15, 0.3);
+                        floorMap3D.setRoomProb(16, 0.2);
+                        floorMap3D.setRoomProb(17, 0.2);
+                        floorMap3D.setRoomProb(18, 0.1);
+                        floorMap3D.setRoomProb(19, 0.0);
+                        floorMap3D.setRoomProb(20, 0.0);
+                        break;
+                    case 4:
+                        floorMap3D.setRoomProb(1, 0.0);
+                        floorMap3D.setRoomProb(2, 0.0);
+                        floorMap3D.setRoomProb(3, 0.0);
+                        floorMap3D.setRoomProb(4, 0.1);
+                        floorMap3D.setRoomProb(5, 0.2);
+                        floorMap3D.setRoomProb(6, 0.1);
+                        floorMap3D.setRoomProb(7, 0.1);
+                        floorMap3D.setRoomProb(8, 0.1);
+                        floorMap3D.setRoomProb(9, 0.3);
+                        floorMap3D.setRoomProb(10, 0.4);
+                        floorMap3D.setRoomProb(11, 0.4);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 0.3);
+                        floorMap3D.setRoomProb(14, 0.3);
+                        floorMap3D.setRoomProb(15, 0.1);
+                        floorMap3D.setRoomProb(16, 0.0);
+                        floorMap3D.setRoomProb(17, 0.0);
+                        floorMap3D.setRoomProb(18, 0.0);
+                        floorMap3D.setRoomProb(19, 0.0);
+                        floorMap3D.setRoomProb(20, 0.0);
+                        break;
+                    case 5:
+                        floorMap3D.setRoomProb(1, 0.0);
+                        floorMap3D.setRoomProb(2, 0.0);
+                        floorMap3D.setRoomProb(3, 0.0);
+                        floorMap3D.setRoomProb(4, 0.0);
+                        floorMap3D.setRoomProb(5, 0.0);
+                        floorMap3D.setRoomProb(6, 0.0);
+                        floorMap3D.setRoomProb(7, 0.0);
+                        floorMap3D.setRoomProb(8, 0.0);
+                        floorMap3D.setRoomProb(9, 0.0);
+                        floorMap3D.setRoomProb(10, 0.0);
+                        floorMap3D.setRoomProb(11, 0.0);
+                        floorMap3D.setRoomProb(12, 1.0);
+                        floorMap3D.setRoomProb(13, 0.0);
+                        floorMap3D.setRoomProb(14, 0.0);
+                        floorMap3D.setRoomProb(15, 0.0);
+                        floorMap3D.setRoomProb(16, 0.0);
+                        floorMap3D.setRoomProb(17, 0.0);
+                        floorMap3D.setRoomProb(18, 0.0);
+                        floorMap3D.setRoomProb(19, 0.0);
+                        floorMap3D.setRoomProb(20, 0.0);
+                        break;
+
+
+                }
+                if(testState > 5) testState = 0;
             }
         });
 
@@ -274,15 +686,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_WIFI_PERMISSION);
             }
         }
-    }
-
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
     }
 
     // onResume() registers the accelerometer for listening the events
@@ -329,44 +732,64 @@ public class MainActivity extends Activity implements SensorEventListener {
             titleAcc.setTextColor(Color.GREEN);
         }
 
-        String line = String.format(Locale.getDefault(), "%f\t%f\t%f\n", aX, aY, aZ);
-        writeToFile(logFileNameAcc, line, true);
-    }
+        //String line = String.format(Locale.getDefault(), "%f\t%f\t%f\n", aX, aY, aZ);
+        //writeToFile(logFileNameAcc, line, true);
 
-    private File writeToFile(String fileName, String line, boolean append)
-    {
-        if (!isExternalStorageWritable())
-            return null;
-        File file = new File(dir, fileName);
-        FileWriter fileWriter;
-        try {
-            fileWriter = new FileWriter(file, append);
-            fileWriter.write(line);
-            fileWriter.flush();
-            fileWriter.close();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+        if (!accReqSender.equals("")) {
+            if (currAccSample == 0) {        // First element is stored unfiltered
+                xResults.add(aX);
+                yResults.add(aY);
+                zResults.add(aZ);
+            } else {                        // Remaining elements are smoothed
+                xResults.add(0.5f * aX + 0.5f * xResults.get(currAccSample - 1));
+                yResults.add(0.5f * aY + 0.5f * yResults.get(currAccSample - 1));
+                zResults.add(0.5f * aZ + 0.5f * zResults.get(currAccSample - 1));
+            }
+            currAccSample++;
+            if (currAccSample == numACCSamples) {   // If this is the last sample in the window
+                // Sort Lists
+                Collections.sort(xResults, new Comparator<Float>() {
+                    @Override
+                    public int compare(Float lhs, Float rhs) {
+                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                    }
+                });
+                Collections.sort(yResults, new Comparator<Float>() {
+                    @Override
+                    public int compare(Float lhs, Float rhs) {
+                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                    }
+                });
+                Collections.sort(zResults, new Comparator<Float>() {
+                    @Override
+                    public int compare(Float lhs, Float rhs) {
+                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                    }
+                });
 
-    private File clearFile(String fileName, String date)
-    {
-        if (!isExternalStorageWritable())
-            return null;
-        File file = new File(dir, fileName);
-        FileWriter fileWriter;
-        try {
-            fileWriter = new FileWriter(file);
-            fileWriter.write(timestamp);
-            fileWriter.write("\n\n");
-            fileWriter.flush();
-            fileWriter.close();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
+                // Calculate peak to peak values
+                Float newX = Math.abs(xResults.get(0) - xResults.get(xResults.size() - 1));
+                Float newY = Math.abs(yResults.get(0) - yResults.get(yResults.size() - 1));
+                Float newZ = Math.abs(zResults.get(0) - zResults.get(zResults.size() - 1));
+
+                // Create new ACCPoint instance
+                ACCPoint newAccPoint = new ACCPoint(accReqSender, newX, newY, newZ);
+
+                if (accReqSender.equals("walkorstand")) {
+                    // Do KNN and update label
+                    textAcc.setText("You are " + knn(newAccPoint, accPoints));
+                } else {
+                    // Add new trained data to Vector
+                    textAcc.setText("Done!");
+                    accPoints.add(newAccPoint);
+                }
+
+                currAccSample = 0;
+                xResults.clear();
+                yResults.clear();
+                zResults.clear();
+                accReqSender = "";
+            }
         }
     }
 }
