@@ -30,6 +30,7 @@ public class ProbMassFuncs implements Serializable{
     private int numCells;
     private int numRssLevels;
     LogWriter logPmf = new LogWriter("logPmf.txt");
+    LogWriter csvPmf = new LogWriter("pmfcurves.txt");
     private File root, dir;
     private static final String DIR_NAME = "SmartPhoneSensing";
     private Context context;
@@ -42,7 +43,7 @@ public class ProbMassFuncs implements Serializable{
         this.numRssLevels = numRssLevels;
         this.root = android.os.Environment.getExternalStorageDirectory();
         this.dir = new File(root.getAbsolutePath() + "/" + DIR_NAME);
-        this.loadPMF();
+        //this.loadPMF();
     }
 
     public void storePMF() {
@@ -67,7 +68,7 @@ public class ProbMassFuncs implements Serializable{
         return this.pm.getPxPrePost(cell);
     }
 
-    public void loadPMF() {
+    public boolean loadPMF() {
         // Load serialized pmf
         try {
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(new File(this.dir, "/storedPMF.bin")));
@@ -79,25 +80,41 @@ public class ProbMassFuncs implements Serializable{
             logPmf.writeToFile("Error loading file. Generating new pmf... \n" + ex.toString(), true);
             this.pmf = new StoredPMF();
             ex.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     // Write PMF contents into a readable .txt log file
     public void logPMF() {
+
+        // Header for csv
+        csvPmf.writeToFile(",", false);
+        for (int lvl = 0; lvl < this.numRssLevels; lvl++) {
+            csvPmf.writeToFile(lvl + ",", true);
+        }
+        csvPmf.writeToFile("\n", true);
+
+        // Header for log
         logPmf.writeToFile("========================: \n", true);
         logPmf.writeToFile("Raw RSS DATA: \n", true);
         logPmf.writeToFile("========================: \n", true);
+
         for(Map.Entry<String, TableRss> t : this.tablesRss.entrySet()) {
             logPmf.writeToFile("AP: " + t.getKey(), true);
             logPmf.writeToFile("\n", true);
             for (int cell = 0; cell < t.getValue().numCells; cell++) {
+                csvPmf.writeToFile(t.getKey() + " - " + (cell + 1) + ",", true);
                 for (int rss = 0; rss < t.getValue().numRssLevels; rss++) {
                     String line = String.valueOf(t.getValue().values[cell][rss]) + ",";
                     logPmf.writeToFile(line, true);
+                    csvPmf.writeToFile(line, true);
                 }
                 logPmf.writeToFile("\n", true);
+                csvPmf.writeToFile("\n", true);
             }
             logPmf.writeToFile("\n\n", true);
+            csvPmf.writeToFile("\n", true);
         }
 
         logPmf.writeToFile("========================: \n", true);
@@ -157,8 +174,15 @@ public class ProbMassFuncs implements Serializable{
             this.pmf.tablesGauss.put(key, gTable);
         }
         this.logPmf.clearFile();
+        this.csvPmf.clearFile();
         this.logPMF();
         this.storePMF();
+    }
+
+    // Resets the prev probabilities in order to start iterating anew
+    public void resetLocation() {
+        pm.resetPriorBelief();
+        pm.printNewBelief();
     }
 
     // Attempt to find the current location. It performs a single measurement iteration with n
@@ -367,7 +391,7 @@ public class ProbMassFuncs implements Serializable{
             this.p_x_prior = new double[numCells];
             this.p_z_x = new double[numCells];
             this.p_wifi = new double[numCells];
-            resetPriorBelief();
+            this.resetPriorBelief();
             this.logBayes.clearFile();
         }
 
@@ -386,6 +410,12 @@ public class ProbMassFuncs implements Serializable{
         public void printNewIter() {
             logBayes.writeToFile("============================================================\n", true);
             logBayes.writeToFile("New iteration\n", true);
+            logBayes.writeToFile("============================================================\n", true);
+        }
+
+        public void printNewBelief() {
+            logBayes.writeToFile("============================================================\n", true);
+            logBayes.writeToFile("New belief\n", true);
             logBayes.writeToFile("============================================================\n", true);
         }
 

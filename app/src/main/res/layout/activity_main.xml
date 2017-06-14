@@ -78,12 +78,12 @@
                 android:gravity="center|top"
                 android:weightSum="1">
                 <Button
-                    android:id="@+id/buttonBAYESIter"
+                    android:id="@+id/buttonBayesNew"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="New" />
                 <Button
-                    android:id="@+id/buttonLocationBAYES"
+                    android:id="@+id/buttonBayesIterate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Iterate" />
@@ -378,7 +378,7 @@
                 android:text="Get RSSI Data" />
 
             <Button
-                android:id="@+id/buttonBAYES"
+                android:id="@+id/buttonBayesCompile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Compile" />

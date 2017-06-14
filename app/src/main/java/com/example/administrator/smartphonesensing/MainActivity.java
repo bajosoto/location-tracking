@@ -17,11 +17,10 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v4.app.ActivityCompat;
 //import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.support.v4.widget.SearchViewCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.support.v4.content.ContextCompat;
 import android.Manifest;
@@ -29,11 +28,6 @@ import android.Manifest;
 import android.widget.Toast;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -54,7 +48,7 @@ public class MainActivity extends Activity implements SensorEventListener {
     /* The number of cells we are taking into consideration */
     private static int numRooms = 3;
     /* The number of samples per room we will be taking */
-    private static int numScans = 50;
+    private static int numScans = 100;
     /* The room we're currently training */
     private static int trainRoom = 0;
 
@@ -76,11 +70,12 @@ public class MainActivity extends Activity implements SensorEventListener {
     LogWriter logAcc = new LogWriter("logAcc.txt");
     LogWriter logRss = new LogWriter("logRss.txt");
 
-
-    ProbMassFuncs pmf = new ProbMassFuncs(numRooms, numRSSLvl);
+    // pmf instantiated in OnCreate to load stored pmf
+    ProbMassFuncs pmf;
     // floorMap3D cannot be initialized here since it needs the Activity to be initialized first
     // so init is in OnCreate()
     FloorMap floorMap3D;
+
     int testState = 0; //TODO: Delete this
 
 
@@ -126,8 +121,8 @@ public class MainActivity extends Activity implements SensorEventListener {
             textTraining;
     // private EditText tbRoomName;
 
-    Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayes,
-    buttonLocationBayes, buttonTest, buttonCfgApSubst, buttonCfgApAdd, buttonCfgRssLvlSubst,
+    Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayesIterate,
+    buttonBayesNew, buttonBayesCompile, buttonTest, buttonCfgApSubst, buttonCfgApAdd, buttonCfgRssLvlSubst,
             buttonCfgRssLvlAdd, buttonCfgRoomsSubst, buttonCfgRoomsAdd, buttonCfgScansSubst,
             buttonCfgScansAdd, buttonTrainRoomSubs, buttonTrainRoomAdd;
 
@@ -177,6 +172,12 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        pmf = new ProbMassFuncs(numRooms, numRSSLvl);
+        if (pmf.loadPMF()) {
+            Toast.makeText(MainActivity.this, "Loaded PMF", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(MainActivity.this, "Invalid / No PMF found, created new", Toast.LENGTH_SHORT).show();
+        }
         // init 3D map TODO: Enable this back
         // floorMap3D = new FloorMap(this, this);
 
@@ -215,8 +216,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonWalk = (Button) findViewById(R.id.buttonWalk);
         buttonStand = (Button) findViewById(R.id.buttonStand);
         buttonWalkOrStand = (Button) findViewById(R.id.buttonWalkOrStand);
-        buttonBayes = (Button) findViewById(R.id.buttonBAYES);
-        buttonLocationBayes = (Button) findViewById(R.id.buttonLocationBAYES);
+        buttonBayesNew = (Button) findViewById(R.id.buttonBayesNew);
+        buttonBayesIterate = (Button) findViewById(R.id.buttonBayesIterate);
+        buttonBayesCompile = (Button) findViewById(R.id.buttonBayesCompile);
         buttonTest = (Button) findViewById(R.id.buttonTest);
         buttonCfgApSubst = (Button) findViewById(R.id.buttonCfgApSubst);
         buttonCfgApAdd = (Button) findViewById(R.id.buttonCfgApAdd);
@@ -318,7 +320,10 @@ public class MainActivity extends Activity implements SensorEventListener {
                     // KNN
                     // ========================================================================
                     textRssi.setText("You are in " + knn(point, refPoints));
-                } else if (scanReqSender == "locationbayes") {
+                } else if (scanReqSender == "locationbayesiter" || scanReqSender == "locationbayesnew") {
+                    if(scanReqSender == "locationbayesnew") {
+                        pmf.resetLocation();
+                    }
                     scanReqSender = "";
                     int estimatedLocationCell = pmf.findLocation(scanResults);
                     String estimatedProb = String.format("%.2f", pmf.getPxPrePost(estimatedLocationCell) * 100);
@@ -356,17 +361,26 @@ public class MainActivity extends Activity implements SensorEventListener {
             }
         });
 
-        // Create a click listener for our button.
-        buttonLocationBayes.setOnClickListener(new OnClickListener() {
+        buttonBayesNew.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanReqSender = "locationbayes";
-                textBayes.setText("Finding your location...");
+                scanReqSender = "locationbayesnew";
+                textBayes.setText("Starting over. Finding your location...");
                 wifiManager.startScan();
             }
         });
 
-        buttonBayes.setOnClickListener(new OnClickListener() {
+        // Create a click listener for our button.
+        buttonBayesIterate.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                scanReqSender = "locationbayesiter";
+                textBayes.setText("Updating your location...");
+                wifiManager.startScan();
+            }
+        });
+
+        buttonBayesCompile.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 // ========================================================================
