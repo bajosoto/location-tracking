@@ -77,30 +77,27 @@ public class MainActivity extends Activity implements SensorEventListener {
     FloorMap floorMap3D;
 
     int testState = 0; //TODO: Delete this
-
+    float stepOffset = 0;
 
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
     private static final String LOG_TAG = "MainActivity.LOG";
-//    private static final boolean LOG_INFO = true;
-//    private static final boolean LOG_ERR = true;
+
     /**
      * The sensor manager object.
      */
     private SensorManager sensorManager;
+
     /**
      * The accelerometer.
      */
     private Sensor accelerometer;
+    private Sensor stepCounter;
     /**
      * The wifi manager.
      */
     private WifiManager wifiManager;
-    /**
-     * The wifi info.
-     */
-    private WifiInfo wifiInfo;
-    /**
+     /**
      * Accelerometer x value
      */
     private float aX = 0;
@@ -118,7 +115,7 @@ public class MainActivity extends Activity implements SensorEventListener {
      */
     private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc, textBayes,
             titleCfgApNum, titleCfgRssLvlNum, titleCfgRoomsNum, titleCfgScansNum, titleTrainRoomNum,
-            textTraining;
+            textTraining,textStep;
     // private EditText tbRoomName;
 
     Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayesIterate,
@@ -203,6 +200,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         titleCfgScansNum = (TextView) findViewById(R.id.titleCfgScansNum);
         titleTrainRoomNum = (TextView) findViewById(R.id.titleTrainRoomNum);
         textTraining = (TextView) findViewById(R.id.textTraining);
+        textStep = (TextView) findViewById(R.id.textStep);
 
         titleCfgApNum.setText(" " + numSSIDs + " ");
         titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
@@ -250,6 +248,13 @@ public class MainActivity extends Activity implements SensorEventListener {
                     SensorManager.SENSOR_DELAY_GAME);
         } else {
             // No accelerometer!
+        }
+
+        if (sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER) != null){
+            // set step counter
+            stepCounter = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+        } else {
+            // No step counter!
         }
 
         // Set the wifi manager
@@ -717,6 +722,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         super.onResume();
         sensorManager.registerListener(this, accelerometer,
                 SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, stepCounter,
+                SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     // onPause() unregisters the accelerometer for stop listening the events
@@ -732,91 +739,105 @@ public class MainActivity extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        currentX.setText("0.0");
-        currentY.setText("0.0");
-        currentZ.setText("0.0");
 
-        // get the the x,y,z values of the accelerometer
-        aX = event.values[0];
-        aY = event.values[1];
-        aZ = event.values[2];
+        Sensor sensor = event.sensor;
+        if (sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+        {
+            currentX.setText("0.0");
+            currentY.setText("0.0");
+            currentZ.setText("0.0");
 
-        // display the current x,y,z accelerometer values
-        currentX.setText(Float.toString(aX));
-        currentY.setText(Float.toString(aY));
-        currentZ.setText(Float.toString(aZ));
+            // get the the x,y,z values of the accelerometer
+            aX = event.values[0];
+            aY = event.values[1];
+            aZ = event.values[2];
 
-        if ((Math.abs(aX) > Math.abs(aY)) && (Math.abs(aX) > Math.abs(aZ))) {
-            titleAcc.setTextColor(Color.RED);
-        }
-        if ((Math.abs(aY) > Math.abs(aX)) && (Math.abs(aY) > Math.abs(aZ))) {
-            titleAcc.setTextColor(Color.BLUE);
-        }
-        if ((Math.abs(aZ) > Math.abs(aY)) && (Math.abs(aZ) > Math.abs(aX))) {
-            titleAcc.setTextColor(Color.GREEN);
-        }
+            // display the current x,y,z accelerometer values
+            currentX.setText(Float.toString(aX));
+            currentY.setText(Float.toString(aY));
+            currentZ.setText(Float.toString(aZ));
 
-        //String line = String.format(Locale.getDefault(), "%f\t%f\t%f\n", aX, aY, aZ);
-        //writeToFile(logFileNameAcc, line, true);
-
-        if (!accReqSender.equals("")) {
-            if (currAccSample == 0) {        // First element is stored unfiltered
-                xResults.add(aX);
-                yResults.add(aY);
-                zResults.add(aZ);
-            } else {                        // Remaining elements are smoothed
-                xResults.add(0.5f * aX + 0.5f * xResults.get(currAccSample - 1));
-                yResults.add(0.5f * aY + 0.5f * yResults.get(currAccSample - 1));
-                zResults.add(0.5f * aZ + 0.5f * zResults.get(currAccSample - 1));
+            if ((Math.abs(aX) > Math.abs(aY)) && (Math.abs(aX) > Math.abs(aZ))) {
+                titleAcc.setTextColor(Color.RED);
             }
-            currAccSample++;
-            if (currAccSample == numACCSamples) {   // If this is the last sample in the window
-                // Sort Lists
-                Collections.sort(xResults, new Comparator<Float>() {
-                    @Override
-                    public int compare(Float lhs, Float rhs) {
-                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
-                    }
-                });
-                Collections.sort(yResults, new Comparator<Float>() {
-                    @Override
-                    public int compare(Float lhs, Float rhs) {
-                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
-                    }
-                });
-                Collections.sort(zResults, new Comparator<Float>() {
-                    @Override
-                    public int compare(Float lhs, Float rhs) {
-                        return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
-                    }
-                });
+            if ((Math.abs(aY) > Math.abs(aX)) && (Math.abs(aY) > Math.abs(aZ))) {
+                titleAcc.setTextColor(Color.BLUE);
+            }
+            if ((Math.abs(aZ) > Math.abs(aY)) && (Math.abs(aZ) > Math.abs(aX))) {
+                titleAcc.setTextColor(Color.GREEN);
+            }
 
+            //String line = String.format(Locale.getDefault(), "%f\t%f\t%f\n", aX, aY, aZ);
+            //writeToFile(logFileNameAcc, line, true);
 
-                // Calculate peak to peak values
-                Float newX = Math.abs(xResults.get(0) - xResults.get(xResults.size() - 1));
-                Float newY = Math.abs(yResults.get(0) - yResults.get(yResults.size() - 1));
-                Float newZ = Math.abs(zResults.get(0) - zResults.get(zResults.size() - 1));
-
-                // Create new ACCPoint instance
-                ACCPoint newAccPoint = new ACCPoint(accReqSender, newX, newY, newZ);
-
-                if (accReqSender.equals("walkorstand")) {
-                    // Do KNN and update label
-                    textAcc.setText("You are " + knn(newAccPoint, accPoints));
-                } else {
-                    // Add new trained data to Vector
-                    textAcc.setText("Done!");
-                    accPoints.add(newAccPoint);
+            if (!accReqSender.equals("")) {
+                if (currAccSample == 0) {        // First element is stored unfiltered
+                    xResults.add(aX);
+                    yResults.add(aY);
+                    zResults.add(aZ);
+                } else {                        // Remaining elements are smoothed
+                    xResults.add(0.5f * aX + 0.5f * xResults.get(currAccSample - 1));
+                    yResults.add(0.5f * aY + 0.5f * yResults.get(currAccSample - 1));
+                    zResults.add(0.5f * aZ + 0.5f * zResults.get(currAccSample - 1));
                 }
+                currAccSample++;
+                if (currAccSample == numACCSamples) {   // If this is the last sample in the window
+                    // Sort Lists
+                    Collections.sort(xResults, new Comparator<Float>() {
+                        @Override
+                        public int compare(Float lhs, Float rhs) {
+                            return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                        }
+                    });
+                    Collections.sort(yResults, new Comparator<Float>() {
+                        @Override
+                        public int compare(Float lhs, Float rhs) {
+                            return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                        }
+                    });
+                    Collections.sort(zResults, new Comparator<Float>() {
+                        @Override
+                        public int compare(Float lhs, Float rhs) {
+                            return lhs > rhs ? -1 : (lhs < rhs) ? 1 : 0;
+                        }
+                    });
 
 
-                currAccSample = 0;
-                xResults.clear();
-                yResults.clear();
-                zResults.clear();
-                accReqSender = "";
+                    // Calculate peak to peak values
+                    Float newX = Math.abs(xResults.get(0) - xResults.get(xResults.size() - 1));
+                    Float newY = Math.abs(yResults.get(0) - yResults.get(yResults.size() - 1));
+                    Float newZ = Math.abs(zResults.get(0) - zResults.get(zResults.size() - 1));
+
+                    // Create new ACCPoint instance
+                    ACCPoint newAccPoint = new ACCPoint(accReqSender, newX, newY, newZ);
+
+                    if (accReqSender.equals("walkorstand")) {
+                        // Do KNN and update label
+                        textAcc.setText("You are " + knn(newAccPoint, accPoints));
+                    } else {
+                        // Add new trained data to Vector
+                        textAcc.setText("Done!");
+                        accPoints.add(newAccPoint);
+                    }
+
+
+                    currAccSample = 0;
+                    xResults.clear();
+                    yResults.clear();
+                    zResults.clear();
+                    accReqSender = "";
+                }
             }
         }
+        else if (sensor.getType() == Sensor.TYPE_STEP_COUNTER)
+        {
+            //TODO: get values
+            if (stepOffset == 0) {
+                stepOffset = event.values[0];
+            }
+            textStep.setText(Float.toString(event.values[0] - stepOffset));
+        }
+
     }
 }
 
