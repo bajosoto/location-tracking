@@ -21,7 +21,7 @@ import static android.net.wifi.WifiManager.calculateSignalLevel;
  * Created by Sergio on 6/21/17.
  */
 
-public class WifiScanner extends Activity {
+public class WifiScanner {
 
     public enum WifiScanAction {
         TRAINING,

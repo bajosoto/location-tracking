@@ -16,12 +16,14 @@ public class Sensors implements SensorEventListener{
     private Sensor msensor;
 
     private Compass compass;
+    private Movement movement;
 
-    public Sensors(Context context, Compass comp) {
+    public Sensors(Context context, Compass comp, Movement move) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         msensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         compass = comp;
+        movement = move;
     }
 
     public void start() {
@@ -37,11 +39,12 @@ public class Sensors implements SensorEventListener{
     public void onSensorChanged(SensorEvent event) {
         synchronized (this) {
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                compass.updateCompass(event.values, "accel");
+                compass.updateCompass(event.values, "accel");  // TODO: use an enum instead of String
+                movement.updateDebug(event.values);
             }
 
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-                compass.updateCompass(event.values, "magnet");
+                compass.updateCompass(event.values, "magnet"); // TODO: use an enum instead of String
             }
         }
     }

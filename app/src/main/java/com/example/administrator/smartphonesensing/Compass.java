@@ -53,7 +53,7 @@ public class Compass {
         this.calTextView.setText(" " + calibration + " ");
     }
 
-    private void adjustCompassText() {
+    private void updateCompassCardinal() {
 
         float calibratedAzimuth = (azimuth + calibration) % 360;
         Cardinal direction;
@@ -79,7 +79,7 @@ public class Compass {
     }
 
     // Smoothing inspired by https://github.com/iutinvg/compass
-    public void updateCompass(float[] values, String sens) {
+    public void updateCompass(float[] values, String sens) {  // TODO: use an enum instead of String
         final float alpha = 0.97f;
 
             if (sens == "accel") {
@@ -105,7 +105,7 @@ public class Compass {
                 azimuth = (float) Math.toDegrees(orientation[0]); // orientation
                 azimuth = (azimuth + 360) % 360;
 
-                adjustCompassText();
+                updateCompassCardinal();
             }
 
     }

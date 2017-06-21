@@ -157,7 +157,7 @@ public class ProbMassFuncs implements Serializable{
     // Compute the gaussian distribution for all the data once we are done acquiring samples. Storing
     // it this way reduces space in memory and adds granularity to our data for RSS values we didn't
     // capture during data acquisition.
-    public void calcGauss(){
+    public void calcGauss(){  // TODO: Add a progress indicator to avoid getting a heart attack on 9th floor
         // For each RSS table, corresponding to each AP found during scans
         for (Map.Entry<String, TableRss> e : this.tablesRss.entrySet()){
             TableRss rTable = e.getValue();
