@@ -1,11 +1,7 @@
 package com.example.administrator.smartphonesensing;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -17,7 +13,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v4.app.ActivityCompat;
 //import android.support.v7.app.AppCompatActivity;
-import android.support.v4.widget.SearchViewCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -33,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
-import static android.net.wifi.WifiManager.calculateSignalLevel;
 import static com.example.administrator.smartphonesensing.LogWriter.isExternalStorageWritable;
 
 /**
@@ -49,17 +43,8 @@ public class MainActivity extends Activity implements SensorEventListener {
     private static int numRooms = 20;
     /* The number of samples per room we will be taking */
     private static int numScans = 60;
-    /* The room we're currently training */
-    private static int trainRoom = 0;
     /* The number of rooms that can be lit at a time + 1 (base) */
     private static int numRoomsLit = 5;
-
-    private static String scanReqSender = "";
-    private static Vector<RSSPoint> refPoints = new Vector();
-    private List<ScanResult> scanResults;
-
-    // Stores the number of samples acquired for a given room
-    private int sampleCount = 0;
 
     private static final int numACCSamples = 80;
     private static int currAccSample = 0;
@@ -70,136 +55,78 @@ public class MainActivity extends Activity implements SensorEventListener {
     private List<Float> zResults = new Vector();
 
     LogWriter logAcc = new LogWriter("logAcc.txt");
-    LogWriter logRss = new LogWriter("logRss.txt");
 
-    // pmf instantiated in OnCreate to load stored pmf
     ProbMassFuncs pmf;
-    // floorMap3D cannot be initialized here since it needs the Activity to be initialized first
-    // so init is in OnCreate()
     FloorMap floorMap3D;
-    // Initialized in OnCreate to pass context and textView
     Sensors sensors;
     Compass compass;
-
-    int testState = 0; //TODO: Delete this
-
+    WifiScanner wifiScanner;
 
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
-    private static final String LOG_TAG = "MainActivity.LOG";
-//    private static final boolean LOG_INFO = true;
-//    private static final boolean LOG_ERR = true;
-    /**
-     * The sensor manager object.
-     */
+
     private SensorManager sensorManager;
-    /**
-     * The accelerometer.
-     */
     private Sensor accelerometer;
-    /**
-     * The wifi manager.
-     */
     private WifiManager wifiManager;
-    /**
-     * The wifi info.
-     */
     private WifiInfo wifiInfo;
-    /**
-     * Accelerometer x value
-     */
     private float aX = 0;
-    /**
-     * Accelerometer y value
-     */
     private float aY = 0;
-    /**
-     * Accelerometer z value
-     */
     private float aZ = 0;
 
-    /**
-     * Text fields to show the sensor values.
-     */
-    private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc, textBayes,
-            titleCfgApNum, titleCfgRssLvlNum, titleCfgRoomsNum, titleCfgScansNum, titleTrainRoomNum,
-            textTraining, textCompass, titleCfgCompassNum;
-    // private EditText tbRoomName;
+    TextView currentX,
+            currentY,
+            currentZ,
+            titleAcc,
+            textKNN,
+            textAcc,
+            textBayes,
+            titleCfgApNum,
+            titleCfgRssLvlNum,
+            titleCfgRoomsNum,
+            titleCfgScansNum,
+            titleTrainRoomNum,
+            textTraining,
+            textCompass,
+            titleCfgCompassNum;
 
-    Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayesIterate,
-    buttonBayesNew, buttonBayesCompile, buttonTest, buttonCfgApSubst, buttonCfgApAdd, buttonCfgRssLvlSubst,
-            buttonCfgRssLvlAdd, buttonCfgRoomsSubst, buttonCfgRoomsAdd, buttonCfgScansSubst,
-            buttonCfgScansAdd, buttonTrainRoomSubs, buttonTrainRoomAdd, buttonCfgCompassSubst,
+    Button buttonRssi,
+            buttonLocation,
+            buttonWalk,
+            buttonStand,
+            buttonWalkOrStand,
+            buttonBayesIterate,
+            buttonBayesNew,
+            buttonBayesCompile,
+            buttonTest,
+            buttonCfgApSubst,
+            buttonCfgApAdd,
+            buttonCfgRssLvlSubst,
+            buttonCfgRssLvlAdd,
+            buttonCfgRoomsSubst,
+            buttonCfgRoomsAdd,
+            buttonCfgScansSubst,
+            buttonCfgScansAdd,
+            buttonTrainRoomSubs,
+            buttonTrainRoomAdd,
+            buttonCfgCompassSubst,
             buttonCfgCompassAdd;
-
-    //AppCompatActivity appCompatActivity;
-
-    public String knn(RSSPoint refPoint, Vector<RSSPoint> RSSPoints) {
-        int smallestDistance = 0;
-        String label = "some place, somewhere...";
-
-        for (RSSPoint rp : RSSPoints){
-            textRssi.setText("Comparing" + refPoint.toString() + "/n With: " + rp.toString());
-            int distance = 0;
-            for (String key : refPoint.accessPoints.keySet()){
-                distance += Math.pow((refPoint.getApDistance(key) - rp.getApDistance(key)), 2);
-            }
-            distance = (int) Math.sqrt(distance);
-            if(smallestDistance == 0 || smallestDistance > distance) {
-                smallestDistance = distance;
-                label = rp.label;
-            }
-        }
-        return label;
-    }
-
-    public String knn(ACCPoint refPoint, Vector<ACCPoint> ACCPoints) {
-        int smallestDistance = 0;
-        String label = "some place, somewhere...";
-
-        for (ACCPoint ap : ACCPoints){
-
-            int distance = 0;
-            distance += Math.pow((refPoint.getX() - ap.getX()), 2);
-            distance += Math.pow((refPoint.getY() - ap.getY()), 2);
-            distance += Math.pow((refPoint.getZ() - ap.getZ()), 2);
-            distance = (int) Math.sqrt(distance);
-
-            if(smallestDistance == 0 || smallestDistance > distance) {
-                smallestDistance = distance;
-                label = ap.label;
-            }
-        }
-        return label;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        pmf = new ProbMassFuncs(numRooms, numRSSLvl);
-        if (pmf.loadPMF()) {
-            Toast.makeText(MainActivity.this, "Loaded PMF", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(MainActivity.this, "Invalid / No PMF found, created new", Toast.LENGTH_SHORT).show();
-        }
-
-
         // Check for writing permission to external memory of the device
         if (isExternalStorageWritable())
             checkWritingPermission();
-
         checkWifiPermission();
-
-
 
         // Create the text views.
         currentX = (TextView) findViewById(R.id.currentX);
         currentY = (TextView) findViewById(R.id.currentY);
         currentZ = (TextView) findViewById(R.id.currentZ);
         titleAcc = (TextView) findViewById(R.id.titleAcc);
-        textRssi = (TextView) findViewById(R.id.textRSSI);
+        textKNN = (TextView) findViewById(R.id.textKNN);
         textAcc = (TextView) findViewById(R.id.textAcc);
         textBayes = (TextView) findViewById(R.id.textBAYES);
         titleCfgApNum = (TextView) findViewById(R.id.titleCfgApNum);
@@ -211,12 +138,12 @@ public class MainActivity extends Activity implements SensorEventListener {
         textCompass = (TextView) findViewById(R.id.textCompass);
         titleCfgCompassNum = (TextView) findViewById(R.id.titleCfgCompassNum);
 
-
+        // Set initial text for text views
         titleCfgApNum.setText(" " + numSSIDs + " ");
         titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
         titleCfgRoomsNum.setText(" " + numRooms + " ");
         titleCfgScansNum.setText(" " + numScans + " ");
-        titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
+        titleTrainRoomNum.setText(" 1 ");       // Safe. trainRoom is init to 0 in WifiScanner
 
         // Create the buttons
         buttonRssi = (Button) findViewById(R.id.buttonRSSI);
@@ -241,116 +168,50 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonCfgCompassSubst = (Button) findViewById(R.id.buttonCfgCompassSubst);
         buttonCfgCompassAdd = (Button) findViewById(R.id.buttonCfgCompassAdd);
 
-
-
-        // tbRoomName = (EditText) findViewById(R.id.tbRoomName);
-
         logAcc.clearFile();
-        logRss.clearFile();
 
-        // init 3D map TODO: Enable this back
+        // Init PMF
+        pmf = new ProbMassFuncs(numRooms, numRSSLvl);
+        if (pmf.loadPMF())
+            Toast.makeText(MainActivity.this, "Loaded PMF", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(MainActivity.this, "No valid PMF found, created new", Toast.LENGTH_SHORT).show();
+
+        // Init map
         floorMap3D = new FloorMap(this, this, numRoomsLit);
 
         // Init sensors TODO: Create Accelerometer class and move all trash code there
         compass = new Compass(textCompass, titleCfgCompassNum);
         sensors = new Sensors(this, compass);
         sensors.start();
-        // TODO: sensors.stop() in onPause() below and .start in onResume()
 
-        // Set the wifi manager
+        // Init the wifi manager
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+        wifiScanner = new WifiScanner(this, wifiManager, numSSIDs, numRSSLvl, numScans, numRooms, pmf,
+                floorMap3D, textTraining, textKNN, textBayes);
+        wifiScanner.init();
 
-        registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
+        initButtons();
+    }
 
-                scanResults = wifiManager.getScanResults();
+    // onResume() registers the accelerometer for listening the events
+    protected void onResume() {
+        super.onResume();
+        sensors.start();
+    }
 
-                Collections.sort(scanResults, new Comparator<ScanResult>() {
-                    @Override
-                    public int compare(ScanResult lhs, ScanResult rhs) {
-                        // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
-                        return lhs.level > rhs.level ? -1 : (lhs.level < rhs.level ) ? 1 : 0;
-                    }
-                });
+    // onPause() unregisters the accelerometer for stop listening the events
+    protected void onPause() {
+        super.onPause();
+        sensors.stop();
+    }
 
-                int foundAPs = scanResults.size();
-                scanResults = scanResults.subList(0, foundAPs >= numSSIDs ? numSSIDs : foundAPs);
-                String line = "";
-
-                //RSSPoint point = new RSSPoint(tbRoomName.getText().toString());
-                RSSPoint point = new RSSPoint(Integer.toString(trainRoom));
-
-                for (ScanResult s : scanResults) {
-                    line += "Room " + (trainRoom + 1) + "\t" + s.BSSID + "\t" + calculateSignalLevel(s.level, numRSSLvl) + "\n";
-                    point.addAP(s.BSSID, s.level);
-                }
-                line += "\n";
-
-
-                if (scanReqSender == "rssi"){
-
-                    // ========================================================================
-                    // PMF
-                    // ========================================================================
-                    // Add current scan results to pmf training
-                    pmf.addScanResults(scanResults, trainRoom);
-                    // textBayes.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
-
-                    // ========================================================================
-                    // KNN
-                    // ========================================================================
-                    refPoints.addElement(point);
-                    // textRssi.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
-
-
-                    textTraining.setText("Acquired sample (" + (sampleCount + 1) + " / " + numScans + ")");
-                    // Check if we still have more scans in this room to do
-                    if (sampleCount < numScans) {
-                        sampleCount++;
-                        wifiManager.startScan();
-                    } else {
-                        // textRssi.setText("Finished Aquiring!");
-                        // textBayes.setText("Finished Aquiring!");
-                        textTraining.setText("Finished Aquiring!");
-                        Toast.makeText(MainActivity.this, "Acquired " + (sampleCount) + " samples from room "
-                                + (trainRoom + 1), Toast.LENGTH_SHORT).show();
-                        sampleCount = 0;
-                        scanReqSender = "";
-                    }
-
-                } else if (scanReqSender == "location") {
-                    scanReqSender = "";
-                    // ========================================================================
-                    // KNN
-                    // ========================================================================
-                    textRssi.setText("You are in " + knn(point, refPoints));
-                } else if (scanReqSender == "locationbayesiter" || scanReqSender == "locationbayesnew") {
-                    if(scanReqSender == "locationbayesnew") {
-                        pmf.resetLocation();
-                    }
-                    scanReqSender = "";
-                    int estimatedLocationCell = pmf.findLocation(scanResults);
-                    String estimatedProb = String.format("%.2f", pmf.getPxPrePost(estimatedLocationCell) * 100);
-                    textBayes.setText("I'm " + estimatedProb +
-                            "% sure you are in room " + (estimatedLocationCell + 1));
-                    floorMap3D.updateRooms(pmf, numRooms);
-                }
-
-
-                logRss.writeToFile(line, true);
-                //writeToFile(logFileNameRSSI, "--------------------------------------------\n", true);
-            }
-        }, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-
+    public void initButtons() {
         // Create a click listener for our button.
         buttonRssi.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanReqSender = "rssi";
-                textRssi.setText("Acquiring...");
-                textBayes.setText("Acquiring...");
-                wifiManager.startScan();
+                wifiScanner.startScan(WifiScanner.WifiScanAction.TRAINING);
             }
         });
 
@@ -358,21 +219,17 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonLocation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                // ========================================================================
                 // KNN
-                // ========================================================================
-                scanReqSender = "location";
-                textRssi.setText("Finding your location...");
-                wifiManager.startScan();
+                textKNN.setText("Finding your location...");
+                wifiScanner.startScan(WifiScanner.WifiScanAction.LOCATION_KNN);
             }
         });
 
         buttonBayesNew.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanReqSender = "locationbayesnew";
                 textBayes.setText("Starting over. Finding your location...");
-                wifiManager.startScan();
+                wifiScanner.startScan(WifiScanner.WifiScanAction.LOCATION_BAYES_NEW);
             }
         });
 
@@ -380,23 +237,17 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonBayesIterate.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanReqSender = "locationbayesiter";
                 textBayes.setText("Updating your location...");
-                wifiManager.startScan();
+                wifiScanner.startScan(WifiScanner.WifiScanAction.LOCATION_BAYES_ITER);
             }
         });
 
         buttonBayesCompile.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                // ========================================================================
-                // PMF
-                // ========================================================================
                 // Calculate gaussian curves for all
-                // textBayes.setText("Calculating Gaussian distributions...");
                 textTraining.setText("Calculating Gaussian distributions...");
                 pmf.calcGauss();
-                // textBayes.setText("Gaussian distributions stored.");
                 textTraining.setText("Gaussian distributions stored.");
             }
         });
@@ -512,10 +363,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonTrainRoomSubs.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (trainRoom > 0){
-                    trainRoom -= 1;
-                    titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
-                }
+                int room = wifiScanner.decTrainRoom();
+                titleTrainRoomNum.setText(" " + (room + 1) + " ");
             }
         });
 
@@ -523,10 +372,8 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonTrainRoomAdd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (trainRoom < numRooms - 1) {
-                    trainRoom += 1;
-                    titleTrainRoomNum.setText(" " + (trainRoom + 1) + " ");
-                }
+                int room = wifiScanner.incTrainRoom();
+                titleTrainRoomNum.setText(" " + (room + 1) + " ");
             }
         });
 
@@ -551,30 +398,27 @@ public class MainActivity extends Activity implements SensorEventListener {
                 compass.decCalibration();
             }
         });
-
-
-
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_CODE_WRITE_PERMISSION) {
-            if (grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // permission was granted
-            } else {
-                // permission wasn't granted
-//                if(LOG_INFO) Log.i(LOG_TAG,"No Write Permission!!");
-            }
-        }
-        if (requestCode == REQUEST_CODE_WIFI_PERMISSION) {
-            if (grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // permission was granted
-            } else {
-                // permission wasn't granted
-//                if(LOG_INFO) Log.i(LOG_TAG,"No WiFi Permission!!");
-            }
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        if (requestCode == REQUEST_CODE_WRITE_PERMISSION) {
+//            if (grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // permission was granted
+//            } else {
+//                // permission wasn't granted
+////                if(LOG_INFO) Log.i(LOG_TAG,"No Write Permission!!");
+//            }
+//        }
+//        if (requestCode == REQUEST_CODE_WIFI_PERMISSION) {
+//            if (grantResults.length >= 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // permission was granted
+//            } else {
+//                // permission wasn't granted
+////                if(LOG_INFO) Log.i(LOG_TAG,"No WiFi Permission!!");
+//            }
+//        }
+//    }
 
     private void checkWritingPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
@@ -596,18 +440,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_CODE_WIFI_PERMISSION);
             }
         }
-    }
-
-    // onResume() registers the accelerometer for listening the events
-    protected void onResume() {
-        super.onResume();
-        sensors.start();
-    }
-
-    // onPause() unregisters the accelerometer for stop listening the events
-    protected void onPause() {
-        super.onPause();
-        sensors.stop();
     }
 
     @Override
@@ -641,9 +473,6 @@ public class MainActivity extends Activity implements SensorEventListener {
             titleAcc.setTextColor(Color.GREEN);
         }
 
-        //String line = String.format(Locale.getDefault(), "%f\t%f\t%f\n", aX, aY, aZ);
-        //writeToFile(logFileNameAcc, line, true);
-
         if (!accReqSender.equals("")) {
             if (currAccSample == 0) {        // First element is stored unfiltered
                 xResults.add(aX);
@@ -676,7 +505,6 @@ public class MainActivity extends Activity implements SensorEventListener {
                     }
                 });
 
-
                 // Calculate peak to peak values
                 Float newX = Math.abs(xResults.get(0) - xResults.get(xResults.size() - 1));
                 Float newY = Math.abs(yResults.get(0) - yResults.get(yResults.size() - 1));
@@ -687,13 +515,12 @@ public class MainActivity extends Activity implements SensorEventListener {
 
                 if (accReqSender.equals("walkorstand")) {
                     // Do KNN and update label
-                    textAcc.setText("You are " + knn(newAccPoint, accPoints));
+                    textAcc.setText("You are " + KNN.knn(newAccPoint, accPoints));
                 } else {
                     // Add new trained data to Vector
                     textAcc.setText("Done!");
                     accPoints.add(newAccPoint);
                 }
-
 
                 currAccSample = 0;
                 xResults.clear();

@@ -179,7 +179,7 @@ public class ProbMassFuncs implements Serializable{
         this.storePMF();
     }
 
-    // Resets the prev probabilities in order to start iterating anew
+    // Resets the prev probabilities in order to init iterating anew
     public void resetLocation() {
         pm.resetPriorBelief();
         pm.printNewBelief();

@@ -18,14 +18,14 @@ public class LogWriter implements Serializable{
     private String fileName;
     private File root, dir;
     private static final String DIR_NAME = "SmartPhoneSensing";
-    SimpleDateFormat simpleDateFormat;
-    String timestamp;
+    private String timestamp;
 
     public LogWriter(String fileName) {
+        SimpleDateFormat simpleDateFormat;
         this.fileName = fileName;
         this.root = android.os.Environment.getExternalStorageDirectory();
         this.dir = new File(root.getAbsolutePath() + "/" + DIR_NAME);
-        this.simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
+        simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy-hh-mm-ss");
         this.timestamp =  simpleDateFormat.format(new Date());
 
         if (!this.dir.mkdirs()) {

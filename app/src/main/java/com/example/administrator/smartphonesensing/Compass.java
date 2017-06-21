@@ -1,7 +1,7 @@
 package com.example.administrator.smartphonesensing;
 
 /**
- * From https://github.com/iutinvg/compass
+ * Created by Sergio on 5/12/17.
  */
 
 import android.hardware.SensorManager;
@@ -9,21 +9,30 @@ import android.widget.TextView;
 
 
 public class Compass {
-    private static final String TAG = "Compass";
+
+    public enum Cardinal {
+        N  ,
+        NE ,
+        E  ,
+        SE ,
+        S  ,
+        SW ,
+        W ,
+        NW
+    }
 
     private float[] mGravity = new float[3];
     private float[] mGeomagnetic = new float[3];
     private float azimuth = 0f;
-    private float currectAzimuth = 0;
-    private float calibration = 210;
+    private float calibration = 335;
 
     // compass arrow to rotate
-    private TextView arrowView = null;
+    private TextView directionTextView = null;
     private TextView calTextView = null;
 
     public Compass(TextView tv, TextView cal) {
-        this.arrowView = tv;
-        this.arrowView.setText("Compass initialized");
+        this.directionTextView = tv;
+        this.directionTextView.setText("Compass initialized");
         this.calTextView = cal;
         this.calTextView.setText(" " + calibration + " ");
     }
@@ -47,28 +56,29 @@ public class Compass {
     private void adjustCompassText() {
 
         float calibratedAzimuth = (azimuth + calibration) % 360;
-        String direction;
+        Cardinal direction;
 
         if(calibratedAzimuth < 45)
-            direction = "N";
+            direction = Cardinal.N;
         else if(calibratedAzimuth < 90)
-            direction = "NE";
+            direction = Cardinal.NE;
         else if(calibratedAzimuth < 135)
-            direction = "E";
+            direction = Cardinal.E;
         else if(calibratedAzimuth < 180)
-            direction = "SE";
+            direction = Cardinal.SE;
         else if(calibratedAzimuth < 225)
-            direction = "S";
+            direction = Cardinal.S;
         else if(calibratedAzimuth < 270)
-            direction = "SW";
+            direction = Cardinal.SW;
         else if(calibratedAzimuth < 315)
-            direction = "W";
+            direction = Cardinal.W;
         else
-            direction = "NW";
+            direction = Cardinal.NW;
 
-        arrowView.setText(direction + " " + (int)calibratedAzimuth);
+        directionTextView.setText(direction + " " + (int)calibratedAzimuth);
     }
 
+    // Smoothing inspired by https://github.com/iutinvg/compass
     public void updateCompass(float[] values, String sens) {
         final float alpha = 0.97f;
 
