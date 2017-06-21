@@ -22,8 +22,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String TEXT_NUM_STEPS = "Number of Steps: ";
     private int numSteps =0;
 
-    private static float[] accel = null;
-    private static float[] magnet = null;
+    private static float[] accel = new float[3];
+    private static float[] magnet = new float[3];
+    private int accelCounter = 0;
+    private int magnetCounter = 0;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,22 +83,42 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        float alpha = (float)0.2;
         if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            accel = event.values;
-            stepdetector.detectStep(event.timestamp, event.values[0], event.values[1], event.values[2]);
+            if (accelCounter == 0){
+                accel = event.values;
+            }
+            else {
+                accel[0] = alpha * event.values[0] + (1 - alpha) * accel[0];
+                accel[1] = alpha * event.values[1] + (1 - alpha) * accel[1];
+                accel[2] = alpha * event.values[2] + (1 - alpha) * accel[2];
+                stepdetector.detectStep(event.timestamp, accel[0], accel[1], accel[2]);
+            }
+            accelCounter++;
         }
         if(event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            stepString.setText("Mag Present");
-            magnet = event.values;
+            if (magnetCounter == 0) {
+                magnet = event.values;
+            }
+            else {
+                magnet[0] = alpha * event.values[0] + (1 - alpha) * magnet[0];
+                magnet[1] = alpha * event.values[1] + (1 - alpha) * magnet[1];
+                magnet[2] = alpha * event.values[2] + (1 - alpha) * magnet[2];
+            }
+            magnetCounter++;
         }
+
         if(accel != null && magnet != null) {
             float inc[] = new float[9];
             float rot[] = new float[9];
+
             boolean success = SensorManager.getRotationMatrix(rot, inc, accel, magnet);
             if (success) {
                 float orientation[] = new float[3];
                 SensorManager.getOrientation(rot, orientation);
-                double azimuth = 180 * orientation[0] / Math.PI; // orientation contains: azimuth, pitch and roll
+                //double azimuth = 180 * orientation[0] / Math.PI; // orientation contains: azimuth, pitch and roll
+                double azimuth = (float) Math.toDegrees(orientation[0]); // orientation
+                azimuth = (azimuth + 360) % 360;
                 direction.setText(Double.toString(azimuth));
             }
         }
