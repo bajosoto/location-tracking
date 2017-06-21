@@ -30,13 +30,17 @@ public class Compass {
 
     public void incCalibration() {
         if (calibration < 360)
-            calibration += 10;
+            calibration += 5;
+        else
+            calibration = 0;
         this.calTextView.setText(" " + calibration + " ");
     }
 
     public void decCalibration() {
         if (calibration > 0)
-            calibration -= 10;
+            calibration -= 5;
+        else
+            calibration = 360;
         this.calTextView.setText(" " + calibration + " ");
     }
 
@@ -62,7 +66,7 @@ public class Compass {
         else
             direction = "NW";
 
-        arrowView.setText(direction);
+        arrowView.setText(direction + " " + (int)calibratedAzimuth);
     }
 
     public void updateCompass(float[] values, String sens) {

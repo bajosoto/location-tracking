@@ -26,7 +26,7 @@ public class Sensors implements SensorEventListener{
 
     public void start() {
         sensorManager.registerListener(this, gsensor, SensorManager.SENSOR_DELAY_GAME);
-        sensorManager.registerListener(this, msensor, SensorManager.SENSOR_DELAY_GAME);
+        sensorManager.registerListener(this, msensor, SensorManager.SENSOR_DELAY_UI);
     }
 
     public void stop() {
