@@ -9,6 +9,8 @@ import android.support.v4.content.ContextCompat;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Arrays;
+
 import static android.content.res.Resources.getSystem;
 
 /**
@@ -19,47 +21,76 @@ public class FloorMap {
    //private Context context;
     // Layers with the map images
     private Drawable[] layers;
+    // Layers currently displayed
+    private int[] layerID;
     private LayerDrawable layerDrawable;
     private ImageView theMap;
+    private int numRoomsLit;
+    private Context context;
 
-    public FloorMap(Context context, Activity activity) {
+    public FloorMap(Context context, Activity activity, int numRoomsLit) {
+        this.context = context;
+        this.numRoomsLit = numRoomsLit;
         this.theMap = (ImageView) activity.findViewById(R.id.the3dMap);
-        this.layers = new Drawable[21];
-        this.layers[0] = ContextCompat.getDrawable(context, R.drawable.base);
-        this.layers[1] = ContextCompat.getDrawable(context, R.drawable.c01);
-        this.layers[2] = ContextCompat.getDrawable(context, R.drawable.c02);
-        this.layers[3] = ContextCompat.getDrawable(context, R.drawable.c03);
-        this.layers[4] = ContextCompat.getDrawable(context, R.drawable.c04);
-        this.layers[5] = ContextCompat.getDrawable(context, R.drawable.c05);
-        this.layers[6] = ContextCompat.getDrawable(context, R.drawable.c06);
-        this.layers[7] = ContextCompat.getDrawable(context, R.drawable.c07);
-        this.layers[8] = ContextCompat.getDrawable(context, R.drawable.c08);
-        this.layers[9] = ContextCompat.getDrawable(context, R.drawable.c09);
-        this.layers[10] = ContextCompat.getDrawable(context, R.drawable.c10);
-        this.layers[11] = ContextCompat.getDrawable(context, R.drawable.c11);
-        this.layers[12] = ContextCompat.getDrawable(context, R.drawable.c12);
-        this.layers[13] = ContextCompat.getDrawable(context, R.drawable.c13);
-        this.layers[14] = ContextCompat.getDrawable(context, R.drawable.c14);
-        this.layers[15] = ContextCompat.getDrawable(context, R.drawable.c15);
-        this.layers[16] = ContextCompat.getDrawable(context, R.drawable.c16);
-        this.layers[17] = ContextCompat.getDrawable(context, R.drawable.c17);
-        this.layers[18] = ContextCompat.getDrawable(context, R.drawable.c18);
-        this.layers[19] = ContextCompat.getDrawable(context, R.drawable.c19);
-        this.layers[20] = ContextCompat.getDrawable(context, R.drawable.c20);
+
+        // Save IDs of all drawables
+        this.layerID = new int[21];
+        this.layerID[0] = this.context.getResources().getIdentifier("base", "drawable", context.getPackageName());
+        for (int i = 1; i < 21; i++) {
+            this.layerID[i] = this.context.getResources().getIdentifier("c" + i, "drawable", context.getPackageName());
+        }
+
+        // Initialize layers to first rooms
+        this.layers = new Drawable[this.numRoomsLit];
+        for (int i = 0; i < this.numRoomsLit; i++) {
+            this.layers[i] = ContextCompat.getDrawable(this.context, layerID[i]);
+        }
 
         this.layerDrawable = new LayerDrawable(layers);
 
         // "Turn off" all rooms
-        for(int i = 1; i < 21; i++) {
-            setRoomProb(i, 0.0);
-        }
+//        for(int i = 1; i < this.numRoomsLit; i++) {
+//            setRoomProb(i, 0.0);
+//        }
 
         this.theMap.setImageDrawable(layerDrawable);
     }
 
-    public void setRoomProb(int room, double alpha){
-        int newAlpha = (int)(255.0 * alpha);
-        this.layerDrawable.getDrawable(room).setAlpha(newAlpha);
+    public void updateRooms(ProbMassFuncs pmf, int numRooms){
+        double[] probs = new double[numRooms];
+        int[] newAlpha = new int[numRoomsLit];
+        newAlpha[0] = 255;
+
+        // get all probabilities
+        for (int i = 0; i < numRooms; i++) {
+            probs[i] = pmf.getPxPrePost(i);
+        }
+
+        // find largest numRoomsLit rooms
+        for(int candidate = 1; candidate < numRoomsLit; candidate++) {
+            int maxRoom = 0;
+            double maxRoomProb = 0.0;
+            for (int room = 0; room < numRooms; room++) {
+                if (probs[room] > maxRoomProb) {
+                    maxRoom = room;
+                    maxRoomProb = probs[room];
+                }
+            }
+            probs[maxRoom] = 0.0;
+
+            //int index = numRooms - 1 - i;
+            newAlpha[candidate] = (int)(255.0 * maxRoomProb);
+            this.layers[candidate] = ContextCompat.getDrawable(this.context, layerID[maxRoom]);
+        }
+
+        this.layerDrawable = new LayerDrawable(layers);
+        this.theMap.setImageDrawable(layerDrawable);
+
+        for (int candidate = 0; candidate < numRoomsLit; candidate++) {
+            this.layerDrawable.getDrawable(candidate).setAlpha(newAlpha[candidate]);
+        }
+
+
         this.theMap.invalidate();
     }
 }

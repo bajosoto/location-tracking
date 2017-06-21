@@ -46,11 +46,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     /* The number of RSS levels (e.g. 0..255) we are taking into consideration */
     private static int numRSSLvl = 100;
     /* The number of cells we are taking into consideration */
-    private static int numRooms = 3;
+    private static int numRooms = 20;
     /* The number of samples per room we will be taking */
-    private static int numScans = 100;
+    private static int numScans = 60;
     /* The room we're currently training */
     private static int trainRoom = 0;
+    /* The number of rooms that can be lit at a time + 1 (base) */
+    private static int numRoomsLit = 5;
 
     private static String scanReqSender = "";
     private static Vector<RSSPoint> refPoints = new Vector();
@@ -75,6 +77,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     // floorMap3D cannot be initialized here since it needs the Activity to be initialized first
     // so init is in OnCreate()
     FloorMap floorMap3D;
+    // Initialized in OnCreate to pass context and textView
+    Sensors sensors;
+    Compass compass;
 
     int testState = 0; //TODO: Delete this
 
@@ -118,13 +123,14 @@ public class MainActivity extends Activity implements SensorEventListener {
      */
     private TextView currentX, currentY, currentZ, titleAcc, textRssi, textAcc, textBayes,
             titleCfgApNum, titleCfgRssLvlNum, titleCfgRoomsNum, titleCfgScansNum, titleTrainRoomNum,
-            textTraining;
+            textTraining, textCompass, titleCfgCompassNum;
     // private EditText tbRoomName;
 
     Button buttonRssi, buttonLocation, buttonWalk, buttonStand, buttonWalkOrStand, buttonBayesIterate,
     buttonBayesNew, buttonBayesCompile, buttonTest, buttonCfgApSubst, buttonCfgApAdd, buttonCfgRssLvlSubst,
             buttonCfgRssLvlAdd, buttonCfgRoomsSubst, buttonCfgRoomsAdd, buttonCfgScansSubst,
-            buttonCfgScansAdd, buttonTrainRoomSubs, buttonTrainRoomAdd;
+            buttonCfgScansAdd, buttonTrainRoomSubs, buttonTrainRoomAdd, buttonCfgCompassSubst,
+            buttonCfgCompassAdd;
 
     //AppCompatActivity appCompatActivity;
 
@@ -178,8 +184,7 @@ public class MainActivity extends Activity implements SensorEventListener {
         } else {
             Toast.makeText(MainActivity.this, "Invalid / No PMF found, created new", Toast.LENGTH_SHORT).show();
         }
-        // init 3D map TODO: Enable this back
-        // floorMap3D = new FloorMap(this, this);
+
 
         // Check for writing permission to external memory of the device
         if (isExternalStorageWritable())
@@ -203,6 +208,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         titleCfgScansNum = (TextView) findViewById(R.id.titleCfgScansNum);
         titleTrainRoomNum = (TextView) findViewById(R.id.titleTrainRoomNum);
         textTraining = (TextView) findViewById(R.id.textTraining);
+        textCompass = (TextView) findViewById(R.id.textCompass);
+        titleCfgCompassNum = (TextView) findViewById(R.id.titleCfgCompassNum);
+
 
         titleCfgApNum.setText(" " + numSSIDs + " ");
         titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
@@ -230,6 +238,9 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonCfgScansAdd = (Button) findViewById(R.id.buttonCfgScansAdd);
         buttonTrainRoomSubs = (Button) findViewById(R.id.buttonTrainRoomSubs);
         buttonTrainRoomAdd = (Button) findViewById(R.id.buttonTrainRoomAdd);
+        buttonCfgCompassSubst = (Button) findViewById(R.id.buttonCfgCompassSubst);
+        buttonCfgCompassAdd = (Button) findViewById(R.id.buttonCfgCompassAdd);
+
 
 
         // tbRoomName = (EditText) findViewById(R.id.tbRoomName);
@@ -237,20 +248,14 @@ public class MainActivity extends Activity implements SensorEventListener {
         logAcc.clearFile();
         logRss.clearFile();
 
-        // Set the sensor manager
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        // init 3D map TODO: Enable this back
+        floorMap3D = new FloorMap(this, this, numRoomsLit);
 
-        // if the default accelerometer exists
-        if (sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER) != null) {
-            // set accelerometer
-            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            // register 'this' as a listener that updates values. Each time a sensor value changes,
-            // the method 'onSensorChanged()' is called.
-            sensorManager.registerListener(this, accelerometer,
-                    SensorManager.SENSOR_DELAY_GAME);
-        } else {
-            // No accelerometer!
-        }
+        // Init sensors TODO: Create Accelerometer class and move all trash code there
+        compass = new Compass(textCompass, titleCfgCompassNum);
+        sensors = new Sensors(this, compass);
+        sensors.start();
+        // TODO: sensors.stop() in onPause() below and .start in onResume()
 
         // Set the wifi manager
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -329,6 +334,7 @@ public class MainActivity extends Activity implements SensorEventListener {
                     String estimatedProb = String.format("%.2f", pmf.getPxPrePost(estimatedLocationCell) * 100);
                     textBayes.setText("I'm " + estimatedProb +
                             "% sure you are in room " + (estimatedLocationCell + 1));
+                    floorMap3D.updateRooms(pmf, numRooms);
                 }
 
 
@@ -528,145 +534,25 @@ public class MainActivity extends Activity implements SensorEventListener {
         buttonTest.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(testState++){
-                    case 0:
-                        floorMap3D.setRoomProb(1, 1.0);
-                        floorMap3D.setRoomProb(2, 1.0);
-                        floorMap3D.setRoomProb(3, 1.0);
-                        floorMap3D.setRoomProb(4, 1.0);
-                        floorMap3D.setRoomProb(5, 1.0);
-                        floorMap3D.setRoomProb(6, 1.0);
-                        floorMap3D.setRoomProb(7, 1.0);
-                        floorMap3D.setRoomProb(8, 1.0);
-                        floorMap3D.setRoomProb(9, 1.0);
-                        floorMap3D.setRoomProb(10, 1.0);
-                        floorMap3D.setRoomProb(11, 1.0);
-                        floorMap3D.setRoomProb(12, 1.0);
-                        floorMap3D.setRoomProb(13, 1.0);
-                        floorMap3D.setRoomProb(14, 1.0);
-                        floorMap3D.setRoomProb(15, 1.0);
-                        floorMap3D.setRoomProb(16, 1.0);
-                        floorMap3D.setRoomProb(17, 1.0);
-                        floorMap3D.setRoomProb(18, 1.0);
-                        floorMap3D.setRoomProb(19, 1.0);
-                        floorMap3D.setRoomProb(20, 1.0);
-                        break;
-                    case 1:
-                        floorMap3D.setRoomProb(1, 0.6);
-                        floorMap3D.setRoomProb(2, 0.7);
-                        floorMap3D.setRoomProb(3, 0.7);
-                        floorMap3D.setRoomProb(4, 0.8);
-                        floorMap3D.setRoomProb(5, 0.8);
-                        floorMap3D.setRoomProb(6, 0.9);
-                        floorMap3D.setRoomProb(7, 0.9);
-                        floorMap3D.setRoomProb(8, 0.9);
-                        floorMap3D.setRoomProb(9, 1.0);
-                        floorMap3D.setRoomProb(10, 1.0);
-                        floorMap3D.setRoomProb(11, 1.0);
-                        floorMap3D.setRoomProb(12, 1.0);
-                        floorMap3D.setRoomProb(13, 1.0);
-                        floorMap3D.setRoomProb(14, 1.0);
-                        floorMap3D.setRoomProb(15, 0.9);
-                        floorMap3D.setRoomProb(16, 0.9);
-                        floorMap3D.setRoomProb(17, 0.7);
-                        floorMap3D.setRoomProb(18, 0.7);
-                        floorMap3D.setRoomProb(19, 0.6);
-                        floorMap3D.setRoomProb(20, 0.6);
-                        break;
-                    case 2:
-                        floorMap3D.setRoomProb(1, 0.3);
-                        floorMap3D.setRoomProb(2, 0.5);
-                        floorMap3D.setRoomProb(3, 0.5);
-                        floorMap3D.setRoomProb(4, 0.6);
-                        floorMap3D.setRoomProb(5, 0.6);
-                        floorMap3D.setRoomProb(6, 0.7);
-                        floorMap3D.setRoomProb(7, 0.7);
-                        floorMap3D.setRoomProb(8, 0.7);
-                        floorMap3D.setRoomProb(9, 0.9);
-                        floorMap3D.setRoomProb(10, 0.9);
-                        floorMap3D.setRoomProb(11, 1.0);
-                        floorMap3D.setRoomProb(12, 1.0);
-                        floorMap3D.setRoomProb(13, 1.0);
-                        floorMap3D.setRoomProb(14, 0.7);
-                        floorMap3D.setRoomProb(15, 0.5);
-                        floorMap3D.setRoomProb(16, 0.5);
-                        floorMap3D.setRoomProb(17, 0.3);
-                        floorMap3D.setRoomProb(18, 0.3);
-                        floorMap3D.setRoomProb(19, 0.2);
-                        floorMap3D.setRoomProb(20, 0.2);
-                        break;
-                    case 3:
-                        floorMap3D.setRoomProb(1, 0.1);
-                        floorMap3D.setRoomProb(2, 0.2);
-                        floorMap3D.setRoomProb(3, 0.3);
-                        floorMap3D.setRoomProb(4, 0.3);
-                        floorMap3D.setRoomProb(5, 0.4);
-                        floorMap3D.setRoomProb(6, 0.3);
-                        floorMap3D.setRoomProb(7, 0.4);
-                        floorMap3D.setRoomProb(8, 0.3);
-                        floorMap3D.setRoomProb(9, 0.5);
-                        floorMap3D.setRoomProb(10, 0.6);
-                        floorMap3D.setRoomProb(11, 0.7);
-                        floorMap3D.setRoomProb(12, 1.0);
-                        floorMap3D.setRoomProb(13, 0.9);
-                        floorMap3D.setRoomProb(14, 0.5);
-                        floorMap3D.setRoomProb(15, 0.3);
-                        floorMap3D.setRoomProb(16, 0.2);
-                        floorMap3D.setRoomProb(17, 0.2);
-                        floorMap3D.setRoomProb(18, 0.1);
-                        floorMap3D.setRoomProb(19, 0.0);
-                        floorMap3D.setRoomProb(20, 0.0);
-                        break;
-                    case 4:
-                        floorMap3D.setRoomProb(1, 0.0);
-                        floorMap3D.setRoomProb(2, 0.0);
-                        floorMap3D.setRoomProb(3, 0.0);
-                        floorMap3D.setRoomProb(4, 0.1);
-                        floorMap3D.setRoomProb(5, 0.2);
-                        floorMap3D.setRoomProb(6, 0.1);
-                        floorMap3D.setRoomProb(7, 0.1);
-                        floorMap3D.setRoomProb(8, 0.1);
-                        floorMap3D.setRoomProb(9, 0.3);
-                        floorMap3D.setRoomProb(10, 0.4);
-                        floorMap3D.setRoomProb(11, 0.4);
-                        floorMap3D.setRoomProb(12, 1.0);
-                        floorMap3D.setRoomProb(13, 0.3);
-                        floorMap3D.setRoomProb(14, 0.3);
-                        floorMap3D.setRoomProb(15, 0.1);
-                        floorMap3D.setRoomProb(16, 0.0);
-                        floorMap3D.setRoomProb(17, 0.0);
-                        floorMap3D.setRoomProb(18, 0.0);
-                        floorMap3D.setRoomProb(19, 0.0);
-                        floorMap3D.setRoomProb(20, 0.0);
-                        break;
-                    case 5:
-                        floorMap3D.setRoomProb(1, 0.0);
-                        floorMap3D.setRoomProb(2, 0.0);
-                        floorMap3D.setRoomProb(3, 0.0);
-                        floorMap3D.setRoomProb(4, 0.0);
-                        floorMap3D.setRoomProb(5, 0.0);
-                        floorMap3D.setRoomProb(6, 0.0);
-                        floorMap3D.setRoomProb(7, 0.0);
-                        floorMap3D.setRoomProb(8, 0.0);
-                        floorMap3D.setRoomProb(9, 0.0);
-                        floorMap3D.setRoomProb(10, 0.0);
-                        floorMap3D.setRoomProb(11, 0.0);
-                        floorMap3D.setRoomProb(12, 1.0);
-                        floorMap3D.setRoomProb(13, 0.0);
-                        floorMap3D.setRoomProb(14, 0.0);
-                        floorMap3D.setRoomProb(15, 0.0);
-                        floorMap3D.setRoomProb(16, 0.0);
-                        floorMap3D.setRoomProb(17, 0.0);
-                        floorMap3D.setRoomProb(18, 0.0);
-                        floorMap3D.setRoomProb(19, 0.0);
-                        floorMap3D.setRoomProb(20, 0.0);
-                        break;
-
-
-                }
-                if(testState > 5) testState = 0;
+                floorMap3D.updateRooms(pmf, numRooms);
             }
         });
+
+        buttonCfgCompassAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                compass.incCalibration();
+            }
+        });
+
+        buttonCfgCompassSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                compass.decCalibration();
+            }
+        });
+
+
 
     }
 
@@ -715,14 +601,13 @@ public class MainActivity extends Activity implements SensorEventListener {
     // onResume() registers the accelerometer for listening the events
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, accelerometer,
-                SensorManager.SENSOR_DELAY_NORMAL);
+        sensors.start();
     }
 
     // onPause() unregisters the accelerometer for stop listening the events
     protected void onPause() {
         super.onPause();
-        sensorManager.unregisterListener(this);
+        sensors.stop();
     }
 
     @Override

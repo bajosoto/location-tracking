@@ -199,6 +199,7 @@ public class ProbMassFuncs implements Serializable{
         // One iteration per scan result
         for (ScanResult s : scanResults) {
             loc = pm.updateBelief(s, numRssLevels);
+            pm.adjustZeroes();
         }
 
         return loc;
@@ -473,6 +474,24 @@ public class ProbMassFuncs implements Serializable{
                 logBayes.writeToFile(s.BSSID + " was not found in the training data. Skipping...\n", true);
             }
             return this.current_belief;
+        }
+
+
+        // This function sets cells whose probability was 0% to 1%, in order to avoid false negatives
+        public void adjustZeroes() {
+            int counter = 0;
+            for (int i = 0; i < numCells; i++) {
+                if (this.p_x_prior[i] == 0) {
+                    counter++;
+                }
+            }
+            for (int i = 0; i < numCells; i++) {
+                if (p_x_prior[i] == 0) {
+                    p_x_prior[i] = 0.01;
+                } else {
+                    p_x_prior[i] = p_x_prior[i] * (1 - counter * 0.01);
+                }
+            }
         }
 
         public void printArray(double[] a, String title, int numCells) {
