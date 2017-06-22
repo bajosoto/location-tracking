@@ -10,18 +10,23 @@ import android.hardware.SensorManager;
  * Created by Sergio on 6/21/17.
  */
 
-public class Sensors implements SensorEventListener{
+public class Sensors implements SensorEventListener, StepListener{
     private SensorManager sensorManager;
     private Sensor gsensor;
     private Sensor msensor;
 
     private Compass compass;
     private Movement movement;
+    private StepDetector stepdetector;
+
+    private int numSteps = 0;
 
     public Sensors(Context context, Compass comp, Movement move) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         msensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        stepdetector = new StepDetector();
+        stepdetector.registerListener(this);
         compass = comp;
         movement = move;
     }
@@ -41,6 +46,7 @@ public class Sensors implements SensorEventListener{
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 compass.updateCompass(event.values, Compass.SensorType.ACCEL);
                 movement.updateDebug(event.values);
+                stepdetector.detectStep(event.timestamp, event.values[0], event.values[1], event.values[2]);
             }
 
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
@@ -51,5 +57,11 @@ public class Sensors implements SensorEventListener{
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
+
+    @Override
+    public void step(long timeNs) {
+        numSteps++;
+        //stepCount.setText(TEXT_NUM_STEPS + numSteps);
     }
 }
