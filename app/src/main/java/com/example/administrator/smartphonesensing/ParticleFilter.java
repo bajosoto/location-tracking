@@ -1,6 +1,9 @@
 package com.example.administrator.smartphonesensing;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -13,23 +16,27 @@ public class ParticleFilter {
     private final int NUM_ROWS = 3;
     private int numParticles;
     private int numCells;
+    private int numTopParticles;
     private int deadParticles; //TODO: I think it should be WifiScanner who revives particles (add particlefilter to scanner)
     private FloorMap floorMap;
+    ProbMassFuncs pmf;
     private Block[][] blockGrid;
     private int[][] cellGridIndex;
-    private Vector<Particle> particles = new Vector();
+    private List<Particle> particles = new Vector();
 
-    public ParticleFilter (int _numParticles, int _numCells, FloorMap _floorMap) {
+    public ParticleFilter (int _numParticles, int _numCells, int _numTopParticles, FloorMap _floorMap, ProbMassFuncs _pmf) {
         numParticles = _numParticles;
         numCells = _numCells;
+        numTopParticles = _numTopParticles;
         deadParticles = 0;
         floorMap = _floorMap;
+        pmf = _pmf;
         blockGrid = new Block[NUM_COLS][NUM_ROWS];
         /* For each cell, (col, row) indexes in grid */
         cellGridIndex = new int[2][numCells];
         initBlocks();
         initGridIndexes();
-        initParticles();
+        // initParticles(); Particles are init by new bayesianin WifiScanner
     }
 
     private void initBlocks() {
@@ -151,10 +158,17 @@ public class ParticleFilter {
         return cellGridIndex[1][cell];
     }
 
-    // TODO: Particles must start distributed according to bayesian results
     public void initParticles() {
+
+        double[] probs = new double[numCells];
+        // Get all probabilities
+        for (int i = 0; i < numCells; i++) {
+            probs[i] = pmf.getPxPrePost(i);
+        }
+
         for(int cell = 0; cell < numCells; cell++) {
-            int pPerBlock = numParticles / numCells; // TODO: Ensure somehow that numCells is multiple of numParticles
+            // int pPerBlock = numParticles / numCells; //
+            int pPerBlock = (int)(probs[cell] * numParticles);
             for (int p = 0; p < pPerBlock; p++) {
                 int cellIndexR = getCellGridX(cell);
                 int cellIndexC = getCellGridY(cell);
@@ -164,13 +178,13 @@ public class ParticleFilter {
                 int cellY2 = blockGrid[cellIndexR][cellIndexC].y2;
                 int randX = (int) (Math.random() * (cellX2 - cellX1) + cellX1);
                 int randY = (int) (Math.random() * (cellY2 - cellY1) + cellY1);
-                particles.addElement(new Particle(randX, randY, 0.5)); // TODO: How to assign initial weight?
+                particles.add(new Particle(randX, randY, probs[cell]));
             }
         }
-        //redrawParticles(); // According to Lecture PPT, particles must start after Bayesian
+        redrawParticles(); // According to Lecture PPT, particles must start after Bayesian
     }
 
-    public void updateParticles(int xOffset, int yOffset) {
+    public void updateParticles(int xOffset, int yOffset) {  // TODO: change lit room based on particle count
         int maxW = floorMap.getMapWidth();
         int maxH = floorMap.getMapHeight();
         Iterator<Particle> i = particles.iterator();
@@ -206,10 +220,41 @@ public class ParticleFilter {
             if(!wasRemoved){
                 p.setX(newX);
                 p.setY(newY);
-                //TODO: Age particle
+                p.age();
             }
         }
+        reviveParticles();
         redrawParticles();
+    }
+
+    public void reviveParticles() {
+        // Sort particles
+        Collections.sort(particles, new Comparator<Particle>() {
+            @Override
+            public int compare(Particle lhs, Particle rhs) {
+                // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+                double lLvl = lhs.getWeight();
+                double rLvl = rhs.getWeight();
+                return lLvl > rLvl ? -1 : (lLvl < rLvl ) ? 1 : 0;
+            }
+        });
+        while (deadParticles > 0) {
+            int candidateID = (int)(Math.random() * numTopParticles);
+            Particle candidate = particles.get(candidateID);
+
+            // Calculate random offset for variance
+            final double scaleFactor = 0.01;
+            final double noiseFactor = 0.5;
+            double xOffset = (floorMap.getMapWidth() * scaleFactor);
+            double yOffset = (floorMap.getMapHeight() * scaleFactor);
+            int xNoise = (int)(xOffset * (Math.random() * noiseFactor * 2.0 - noiseFactor));
+            int yNoise = (int)(yOffset * (Math.random() * noiseFactor * 2.0 - noiseFactor));
+
+            int newX = candidate.getX() + xNoise;
+            int newY = candidate.getY() + yNoise;
+            particles.add(new Particle(newX, newY, 0.0));
+            deadParticles -= 1;
+        }
     }
 
     public void redrawParticles() {
@@ -251,6 +296,10 @@ public class ParticleFilter {
 
         public double getWeight() {
             return weight;
+        }
+
+        public void age(){
+            weight += 0.01;
         }
     }
 

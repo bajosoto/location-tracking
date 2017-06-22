@@ -40,6 +40,7 @@ public class WifiScanner {
     private int sampleCount = 0;
 
     private WifiManager wifiManager;
+    private ParticleFilter particleFilter;
     private List<ScanResult> scanResults;
     private WifiScanAction scanAction;
     public ProbMassFuncs pmf;
@@ -52,11 +53,12 @@ public class WifiScanner {
 
     Context context;
 
-    public WifiScanner(Context _context, WifiManager _wifiManager, int _numSSIDs, int _numRSSLvl, int _numScans, int _numRooms,
+    public WifiScanner(Context _context, WifiManager _wifiManager, ParticleFilter _particleFilter, int _numSSIDs, int _numRSSLvl, int _numScans, int _numRooms,
                        ProbMassFuncs _pmf, FloorMap _floorMap3D, TextView _textTraining, TextView _textKNN,
                        TextView _textBayes) {
 
         wifiManager = _wifiManager;
+        particleFilter = _particleFilter;
         numSSIDs = _numSSIDs;
         numRSSLvl = _numRSSLvl;
         numScans = _numScans;
@@ -134,6 +136,7 @@ public class WifiScanner {
                         String estimatedProb = String.format("%.2f", pmf.getPxPrePost(estimatedLocationCell) * 100);
                         textBayes.setText("I'm " + estimatedProb + "% sure you are in room " + (estimatedLocationCell + 1));
                         floorMap3D.updateRooms(estimatedLocationCell);
+                        particleFilter.initParticles();
                         break;
 
                     case NONE:

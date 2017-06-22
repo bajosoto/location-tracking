@@ -48,7 +48,7 @@ public class FloorMap {
     public void addParticle(ParticleFilter.Particle particle) {
         int x = particle.getX();
         int y = particle.getY();
-        int color = Color.RED | ((int)(0xFF * (particle.getWeight())) << 8);
+        int color = Color.RED | ((int)(0xFF * (1 - particle.getWeight())) << 8);
         paint.setColor(color);
         canvas.drawCircle(x, y, 2, paint);  // TODO: Maybe weight can affect color or diameter of dot
     }

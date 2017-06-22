@@ -36,6 +36,8 @@ public class MainActivity extends Activity {
     private static final int numACCSamples = 80;
     /* The number of particles we use for the particle system */
     private static final int numParticles = 1000;
+    /* The number of particles selected for birthing */
+    private static final int numTopParticles = 200;
 
 
     ProbMassFuncs pmf;
@@ -118,7 +120,7 @@ public class MainActivity extends Activity {
         floorMap3D = new FloorMap(this, this); //, numRoomsLit);
 
         // Init the particle filter
-        particleFilter = new ParticleFilter(numParticles, numRooms, floorMap3D);
+        particleFilter = new ParticleFilter(numParticles, numRooms, numTopParticles, floorMap3D, pmf);
 
         // Init sensors TODO: Create Accelerometer class and move all trash code there
         compass = new Compass(textCompass, titleCfgCompassNum);
@@ -131,7 +133,7 @@ public class MainActivity extends Activity {
 
         // Init the wifi manager
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        wifiScanner = new WifiScanner(this, wifiManager, numSSIDs, numRSSLvl, numScans, numRooms, pmf,
+        wifiScanner = new WifiScanner(this, wifiManager, particleFilter, numSSIDs, numRSSLvl, numScans, numRooms, pmf,
                 floorMap3D, textTraining, textKNN, textBayes);
         wifiScanner.init();
     }
