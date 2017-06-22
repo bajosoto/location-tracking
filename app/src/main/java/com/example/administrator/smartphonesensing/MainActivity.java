@@ -47,6 +47,8 @@ public class MainActivity extends Activity {
     private static int numRoomsLit = 5;
     /* The number of samples we take to detect movement */
     private static final int numACCSamples = 80;
+    /* The number of particles we use for the particle system */
+    private static final int numParticles = 5000;
 
 
     ProbMassFuncs pmf;
@@ -55,6 +57,7 @@ public class MainActivity extends Activity {
     Compass compass;
     Movement movement;
     WifiScanner wifiScanner;
+    ParticleFilter particleFilter;
 
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
@@ -127,6 +130,9 @@ public class MainActivity extends Activity {
 
         // Init map
         floorMap3D = new FloorMap(this, this, numRoomsLit);
+
+        // Init the particle filter
+        particleFilter = new ParticleFilter(numParticles, numRooms, floorMap3D);
 
         // Init sensors TODO: Create Accelerometer class and move all trash code there
         compass = new Compass(textCompass, titleCfgCompassNum);
