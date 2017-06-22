@@ -232,7 +232,7 @@ public class ParticleFilter {
         }
         reviveParticles();
         // reviveParticles sorted particles, so we can find best candidate room now
-        findRoomByParticles();
+         findRoomByParticles();
         redrawParticles();
     }
 
