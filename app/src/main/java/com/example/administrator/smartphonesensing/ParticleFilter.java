@@ -34,7 +34,7 @@ public class ParticleFilter {
 
     private void initBlocks() {
         int maxWidth = floorMap.getMapWidth();
-        int maxHeight = floorMap.getMapHeigth();
+        int maxHeight = floorMap.getMapHeight();
 
         for (int x = 0; x < NUM_COLS; x++) {
             for (int y = 0; y < NUM_ROWS; y++) {
@@ -126,7 +126,7 @@ public class ParticleFilter {
 
     public Block getBlockByCoord(int x, int y) {
         int maxWidth = floorMap.getMapWidth();
-        int maxHeight = floorMap.getMapHeigth();
+        int maxHeight = floorMap.getMapHeight();
         int col = x * NUM_COLS / maxWidth;
         int row;
         if (y < (int)(maxHeight * 6.1 / 14.3))
@@ -166,7 +166,7 @@ public class ParticleFilter {
 
     public void updateParticles(int xOffset, int yOffset) {
         int maxW = floorMap.getMapWidth();
-        int maxH = floorMap.getMapHeigth();
+        int maxH = floorMap.getMapHeight();
         boolean wasRemoved = false;
         Iterator<Particle> i = particles.iterator();
         while (i.hasNext()) {
@@ -233,7 +233,7 @@ public class ParticleFilter {
             y = _y;
         }
 
-        public double getWeigth() {
+        public double getWeight() {
             return weight;
         }
     }

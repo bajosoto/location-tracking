@@ -6,11 +6,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.content.Context;
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.support.v4.app.ActivityCompat;
 //import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -21,12 +16,6 @@ import android.support.v4.content.ContextCompat;
 import android.Manifest;
 
 import android.widget.Toast;
-
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Vector;
 
 import static com.example.administrator.smartphonesensing.LogWriter.isExternalStorageWritable;
 
@@ -43,12 +32,10 @@ public class MainActivity extends Activity {
     private static int numRooms = 20;
     /* The number of samples per room we will be taking */
     private static int numScans = 60;
-    /* The number of rooms that can be lit at a time + 1 (base) */
-    private static int numRoomsLit = 5;
     /* The number of samples we take to detect movement */
     private static final int numACCSamples = 80;
     /* The number of particles we use for the particle system */
-    private static final int numParticles = 5000;
+    private static final int numParticles = 1000;
 
 
     ProbMassFuncs pmf;
@@ -63,8 +50,6 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
 
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
     private WifiManager wifiManager;
     private WifiInfo wifiInfo;
 
@@ -130,7 +115,7 @@ public class MainActivity extends Activity {
             Toast.makeText(MainActivity.this, "No valid PMF found, created new", Toast.LENGTH_SHORT).show();
 
         // Init map
-        floorMap3D = new FloorMap(this, this, numRoomsLit);
+        floorMap3D = new FloorMap(this, this); //, numRoomsLit);
 
         // Init the particle filter
         particleFilter = new ParticleFilter(numParticles, numRooms, floorMap3D);

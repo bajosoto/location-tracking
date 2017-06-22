@@ -1,6 +1,5 @@
 package com.example.administrator.smartphonesensing;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -8,7 +7,6 @@ import android.content.IntentFilter;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -135,7 +133,7 @@ public class WifiScanner {
                         int estimatedLocationCell = pmf.findLocation(scanResults);
                         String estimatedProb = String.format("%.2f", pmf.getPxPrePost(estimatedLocationCell) * 100);
                         textBayes.setText("I'm " + estimatedProb + "% sure you are in room " + (estimatedLocationCell + 1));
-                        floorMap3D.updateRooms(pmf, numRooms);
+                        floorMap3D.updateRooms(estimatedLocationCell);
                         break;
 
                     case NONE:
