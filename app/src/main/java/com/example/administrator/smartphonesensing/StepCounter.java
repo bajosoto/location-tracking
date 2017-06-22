@@ -25,9 +25,10 @@ public class StepCounter { // TODO: Instantiate in Sensors class
         // TODO: update particles position (remember it must be a bit random!)
         int xOffset = 0;
         int yOffset = 0;
+        double mapProportion = (floorMap.getMapWidth() / (4 * 13));
 
-        // My stride was about .5m
-        int offset = (int)((0.5 * steps) * (floorMap.getMapWidth() / (4 * 13)));
+        // My stride was about .48m
+        int offset = (int)((0.48 * steps) * mapProportion);
 
         switch (direction) {
             case N:
@@ -42,7 +43,23 @@ public class StepCounter { // TODO: Instantiate in Sensors class
             case W:
                 xOffset -= offset;
                 break;
-            default:  //TODO: There is no NW, SW, NE, NW yet!
+            case NE:
+                yOffset -= offset * 0.5;
+                xOffset += offset * 0.5;
+                break;
+            case SE:
+                yOffset += offset * 0.5;
+                xOffset += offset * 0.5;
+                break;
+            case NW:
+                yOffset -= offset * 0.5;
+                xOffset -= offset * 0.5;
+                break;
+            case SW:
+                yOffset += offset * 0.5;
+                xOffset -= offset * 0.5;
+                break;
+            default:
                 break;
         }
         particleFilter.updateParticles(xOffset, yOffset);

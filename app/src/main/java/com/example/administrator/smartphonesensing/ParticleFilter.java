@@ -127,8 +127,13 @@ public class ParticleFilter {
     public Block getBlockByCoord(int x, int y) {
         int maxWidth = floorMap.getMapWidth();
         int maxHeight = floorMap.getMapHeight();
-        int col = x * NUM_COLS / maxWidth;
+        int col;
         int row;
+
+        // Get column
+        col = x * NUM_COLS / maxWidth;
+        col = col == 13 ? 12 : col;
+        // Get row
         if (y < (int)(maxHeight * 6.1 / 14.3))
             row = 0;
         else if(y < (int)(maxHeight * 8.2 / 14.3))
@@ -146,6 +151,7 @@ public class ParticleFilter {
         return cellGridIndex[1][cell];
     }
 
+    // TODO: Particles must start distributed according to bayesian results
     public void initParticles() {
         for(int cell = 0; cell < numCells; cell++) {
             int pPerBlock = numParticles / numCells; // TODO: Ensure somehow that numCells is multiple of numParticles
@@ -167,20 +173,29 @@ public class ParticleFilter {
     public void updateParticles(int xOffset, int yOffset) {
         int maxW = floorMap.getMapWidth();
         int maxH = floorMap.getMapHeight();
-        boolean wasRemoved = false;
         Iterator<Particle> i = particles.iterator();
         while (i.hasNext()) {
+
+            // Add noise
+            int offset = Math.abs(xOffset) > Math.abs(yOffset) ? xOffset : yOffset;
+            final double noiseFactor = 0.5;
+            int xNoise = (int)((double)offset * (Math.random() * noiseFactor * 2.0 - noiseFactor));
+            int yNoise = (int)((double)offset * (Math.random() * noiseFactor * 2.0 - noiseFactor));
+
+            // Get particle data
             Particle p = i.next();
             int pX = p.getX();
             int pY = p.getY();
-            int newX = xOffset + pX;
-            int newY = yOffset + pY;
+            int newX = pX + xOffset + xNoise;
+            int newY = pY + yOffset + yNoise;
+            boolean wasRemoved = false;
+
             if((newX > maxW) || (newX < 0) || (newY > maxH) || (newY < 0)){
                 deadParticles += 1;
                 i.remove();
                 wasRemoved = true;
             } else { // Looks like both conditions are the same, but need to be separate to guarantee getBlockByCoord
-                Block b = getBlockByCoord(pX, pY);
+                Block b = getBlockByCoord(newX, newY);
                 // Kill cells landing in non-cell
                 if(!b.isCell){
                     deadParticles += 1;
@@ -191,6 +206,7 @@ public class ParticleFilter {
             if(!wasRemoved){
                 p.setX(newX);
                 p.setY(newY);
+                //TODO: Age particle
             }
         }
         redrawParticles();

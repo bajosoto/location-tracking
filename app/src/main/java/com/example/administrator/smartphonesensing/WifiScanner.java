@@ -163,5 +163,4 @@ public class WifiScanner {
         return trainRoom;
     }
 
-    // TODO: create Train Room button actions inc dec
 }
