@@ -158,10 +158,10 @@ public class ParticleFilter {
                 int cellY2 = blockGrid[cellIndexR][cellIndexC].y2;
                 int randX = (int) (Math.random() * (cellX2 - cellX1) + cellX1);
                 int randY = (int) (Math.random() * (cellY2 - cellY1) + cellY1);
-                particles.addElement(new Particle(randX, randY, 1)); // TODO: How to assign initial weight?
+                particles.addElement(new Particle(randX, randY, 0.5)); // TODO: How to assign initial weight?
             }
         }
-        redrawParticles();
+        //redrawParticles(); // According to Lecture PPT, particles must start after Bayesian
     }
 
     public void updateParticles(int xOffset, int yOffset) {
