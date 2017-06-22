@@ -17,13 +17,15 @@ public class Sensors implements SensorEventListener{
 
     private Compass compass;
     private Movement movement;
+    private StepCounter stepCounter;
 
-    public Sensors(Context context, Compass comp, Movement move) {
+    public Sensors(Context context, Compass comp, Movement move, StepCounter counter) {
         sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         gsensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         msensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         compass = comp;
         movement = move;
+        stepCounter = counter;
     }
 
     public void start() {
@@ -41,6 +43,7 @@ public class Sensors implements SensorEventListener{
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 compass.updateCompass(event.values, Compass.SensorType.ACCEL);
                 movement.updateDebug(event.values);
+                stepCounter.count(event.timestamp, event.values);
             }
 
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
@@ -52,4 +55,5 @@ public class Sensors implements SensorEventListener{
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
+
 }

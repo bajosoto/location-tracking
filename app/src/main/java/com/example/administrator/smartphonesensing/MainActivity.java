@@ -126,7 +126,7 @@ public class MainActivity extends Activity {
         compass = new Compass(textCompass, titleCfgCompassNum);
         movement = new Movement(currentX, currentY, currentZ, textAcc, numACCSamples);
         stepCounter = new StepCounter(particleFilter, compass, floorMap3D);
-        sensors = new Sensors(this, compass, movement); //TODO: Probably add stepCounter here when it's implemented
+        sensors = new Sensors(this, compass, movement, stepCounter); //TODO: Probably add stepCounter here when it's implemented
         sensors.start();
 
 
