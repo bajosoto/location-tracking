@@ -25,6 +25,7 @@ public class Compass {
     private float[] mGeomagnetic = new float[3];
     private float azimuth = 0f;
     private float calibration = 335;
+    Cardinal direction;
 
     // compass arrow to rotate
     private TextView directionTextView = null;
@@ -35,6 +36,11 @@ public class Compass {
         this.directionTextView.setText("Compass initialized");
         this.calTextView = cal;
         this.calTextView.setText(" " + calibration + " ");
+        direction = Cardinal.N; // Just initializing to anything so compiler doesn't yell at me
+    }
+
+    public Cardinal getDirection() {
+        return direction;
     }
 
     public void incCalibration() {
@@ -56,7 +62,6 @@ public class Compass {
     private void updateCompassCardinal() {
 
         float calibratedAzimuth = (azimuth + calibration) % 360;
-        Cardinal direction;
 
         if(calibratedAzimuth < 45)
             direction = Cardinal.N;
@@ -82,32 +87,31 @@ public class Compass {
     public void updateCompass(float[] values, String sens) {  // TODO: use an enum instead of String
         final float alpha = 0.97f;
 
-            if (sens == "accel") {
-                mGravity[0] = alpha * mGravity[0] + (1 - alpha) * values[0];
-                mGravity[1] = alpha * mGravity[1] + (1 - alpha) * values[1];
-                mGravity[2] = alpha * mGravity[2] + (1 - alpha) * values[2];
-            }
+        if (sens == "accel") {
+            mGravity[0] = alpha * mGravity[0] + (1 - alpha) * values[0];
+            mGravity[1] = alpha * mGravity[1] + (1 - alpha) * values[1];
+            mGravity[2] = alpha * mGravity[2] + (1 - alpha) * values[2];
+        }
 
-            if (sens == "magnet") {
-                mGeomagnetic[0] = alpha * mGeomagnetic[0] + (1 - alpha) * values[0];
-                mGeomagnetic[1] = alpha * mGeomagnetic[1] + (1 - alpha) * values[1];
-                mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha) * values[2];
-            }
+        if (sens == "magnet") {
+            mGeomagnetic[0] = alpha * mGeomagnetic[0] + (1 - alpha) * values[0];
+            mGeomagnetic[1] = alpha * mGeomagnetic[1] + (1 - alpha) * values[1];
+            mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha) * values[2];
+        }
 
-            float R[] = new float[9];
-            float I[] = new float[9];
-            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+        float R[] = new float[9];
+        float I[] = new float[9];
+        boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
 
-            if (success) {
-                float orientation[] = new float[3];
-                SensorManager.getOrientation(R, orientation);
+        if (success) {
+            float orientation[] = new float[3];
+            SensorManager.getOrientation(R, orientation);
 
-                azimuth = (float) Math.toDegrees(orientation[0]); // orientation
-                azimuth = (azimuth + 360) % 360;
+            azimuth = (float) Math.toDegrees(orientation[0]); // orientation
+            azimuth = (azimuth + 360) % 360;
 
-                updateCompassCardinal();
-            }
-
+            updateCompassCardinal();
+        }
     }
 }
 

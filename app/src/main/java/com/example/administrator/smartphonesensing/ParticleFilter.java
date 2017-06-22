@@ -1,5 +1,6 @@
 package com.example.administrator.smartphonesensing;
 
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -12,6 +13,7 @@ public class ParticleFilter {
     private final int NUM_ROWS = 3;
     private int numParticles;
     private int numCells;
+    private int deadParticles; //TODO: I think it should be WifiScanner who revives particles (add particlefilter to scanner)
     private FloorMap floorMap;
     private Block[][] blockGrid;
     private int[][] cellGridIndex;
@@ -20,6 +22,7 @@ public class ParticleFilter {
     public ParticleFilter (int _numParticles, int _numCells, FloorMap _floorMap) {
         numParticles = _numParticles;
         numCells = _numCells;
+        deadParticles = 0;
         floorMap = _floorMap;
         blockGrid = new Block[NUM_COLS][NUM_ROWS];
         /* For each cell, (col, row) indexes in grid */
@@ -121,6 +124,20 @@ public class ParticleFilter {
         cellGridIndex[1][19] = 2;
     }
 
+    public Block getBlockByCoord(int x, int y) {
+        int maxWidth = floorMap.getMapWidth();
+        int maxHeight = floorMap.getMapHeigth();
+        int col = x * NUM_COLS / maxWidth;
+        int row;
+        if (y < (int)(maxHeight * 6.1 / 14.3))
+            row = 0;
+        else if(y < (int)(maxHeight * 8.2 / 14.3))
+            row = 1;
+        else
+            row = 2;    //guaranteed, at least called from updateParticles
+        return blockGrid[col][row];
+    }
+
     public int getCellGridX(int cell) {
         return cellGridIndex[0][cell];
     }
@@ -147,8 +164,36 @@ public class ParticleFilter {
         redrawParticles();
     }
 
-    public void updateParticles() {
-        // TODO
+    public void updateParticles(int xOffset, int yOffset) {
+        int maxW = floorMap.getMapWidth();
+        int maxH = floorMap.getMapHeigth();
+        boolean wasRemoved = false;
+        Iterator<Particle> i = particles.iterator();
+        while (i.hasNext()) {
+            Particle p = i.next();
+            int pX = p.getX();
+            int pY = p.getY();
+            int newX = xOffset + pX;
+            int newY = yOffset + pY;
+            if((newX > maxW) || (newX < 0) || (newY > maxH) || (newY < 0)){
+                deadParticles += 1;
+                i.remove();
+                wasRemoved = true;
+            } else { // Looks like both conditions are the same, but need to be separate to guarantee getBlockByCoord
+                Block b = getBlockByCoord(pX, pY);
+                // Kill cells landing in non-cell
+                if(!b.isCell){
+                    deadParticles += 1;
+                    i.remove();
+                    wasRemoved = true;
+                }
+            }
+            if(!wasRemoved){
+                p.setX(newX);
+                p.setY(newY);
+            }
+        }
+        redrawParticles();
     }
 
     public void redrawParticles() {
@@ -180,6 +225,14 @@ public class ParticleFilter {
             return y;
         }
 
+        public void setX(int _x) {
+            x = _x;
+        }
+
+        public void setY(int _y) {
+            y = _y;
+        }
+
         public double getWeigth() {
             return weight;
         }
@@ -205,7 +258,8 @@ public class ParticleFilter {
 
         // TODO: WE won't need this one once we have a block grid. It might be removable, saving computations by storing as bool
         public boolean isValidCell (int x, int y) {
-            return ((x >= x1) && (x <= x2)) && ((y >= y1) && (y <= y2));
+            //return ((x >= x1) && (x <= x2)) && ((y >= y1) && (y <= y2));
+            return isCell;
         }
     }
 }

@@ -58,6 +58,7 @@ public class MainActivity extends Activity {
     Movement movement;
     WifiScanner wifiScanner;
     ParticleFilter particleFilter;
+    StepCounter stepCounter;
 
     private static final int REQUEST_CODE_WRITE_PERMISSION = 0;
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
@@ -137,8 +138,11 @@ public class MainActivity extends Activity {
         // Init sensors TODO: Create Accelerometer class and move all trash code there
         compass = new Compass(textCompass, titleCfgCompassNum);
         movement = new Movement(currentX, currentY, currentZ, textAcc, numACCSamples);
-        sensors = new Sensors(this, compass, movement);
+        stepCounter = new StepCounter(particleFilter, compass, floorMap3D);
+        sensors = new Sensors(this, compass, movement); //TODO: Probably add stepCounter here when it's implemented
         sensors.start();
+
+
 
         // Init the wifi manager
         wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -384,7 +388,8 @@ public class MainActivity extends Activity {
         buttonTest.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                floorMap3D.updateRooms(pmf, numRooms);
+                //floorMap3D.updateRooms(pmf, numRooms);
+                stepCounter.incSteps(1);
             }
         });
 
