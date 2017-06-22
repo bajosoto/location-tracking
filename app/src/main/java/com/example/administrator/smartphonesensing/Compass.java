@@ -21,6 +21,12 @@ public class Compass {
         NW
     }
 
+    public enum SensorType {
+        ACCEL,
+        MAGNET,
+        NONE
+    }
+
     private float[] mGravity = new float[3];
     private float[] mGeomagnetic = new float[3];
     private float azimuth = 0f;
@@ -84,19 +90,23 @@ public class Compass {
     }
 
     // Smoothing inspired by https://github.com/iutinvg/compass
-    public void updateCompass(float[] values, String sens) {  // TODO: use an enum instead of String
+    public void updateCompass(float[] values, SensorType sens) {
         final float alpha = 0.97f;
 
-        if (sens == "accel") {
-            mGravity[0] = alpha * mGravity[0] + (1 - alpha) * values[0];
-            mGravity[1] = alpha * mGravity[1] + (1 - alpha) * values[1];
-            mGravity[2] = alpha * mGravity[2] + (1 - alpha) * values[2];
-        }
+        switch(sens) {
+            case ACCEL:
+                mGravity[0] = alpha * mGravity[0] + (1 - alpha) * values[0];
+                mGravity[1] = alpha * mGravity[1] + (1 - alpha) * values[1];
+                mGravity[2] = alpha * mGravity[2] + (1 - alpha) * values[2];
+                break;
 
-        if (sens == "magnet") {
-            mGeomagnetic[0] = alpha * mGeomagnetic[0] + (1 - alpha) * values[0];
-            mGeomagnetic[1] = alpha * mGeomagnetic[1] + (1 - alpha) * values[1];
-            mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha) * values[2];
+            case MAGNET:
+                mGeomagnetic[0] = alpha * mGeomagnetic[0] + (1 - alpha) * values[0];
+                mGeomagnetic[1] = alpha * mGeomagnetic[1] + (1 - alpha) * values[1];
+                mGeomagnetic[2] = alpha * mGeomagnetic[2] + (1 - alpha) * values[2];
+                break;
+            case NONE:
+                break;
         }
 
         float R[] = new float[9];
