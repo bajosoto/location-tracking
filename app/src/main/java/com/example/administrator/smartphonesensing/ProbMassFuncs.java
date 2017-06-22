@@ -3,7 +3,10 @@ package com.example.administrator.smartphonesensing;
 import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +30,7 @@ public class ProbMassFuncs implements Serializable{
     private Map<String, TableRss> tablesRss;
     private StoredPMF pmf;
     private PerceptionModel pm;
+    private TextView textTraining;
     private int numCells;
     private int numRssLevels;
     LogWriter logPmf = new LogWriter("logPmf.txt");
@@ -36,9 +40,10 @@ public class ProbMassFuncs implements Serializable{
     private Context context;
 
 
-    public ProbMassFuncs(int numCells, int numRssLevels) {
+    public ProbMassFuncs(int numCells, int numRssLevels, TextView _textTraining) {
         this.tablesRss = new HashMap<String, TableRss>();
         this.pm = new PerceptionModel(numCells, numRssLevels);
+        textTraining = _textTraining;
         this.numCells = numCells;
         this.numRssLevels = numRssLevels;
         this.root = android.os.Environment.getExternalStorageDirectory();
@@ -158,6 +163,10 @@ public class ProbMassFuncs implements Serializable{
     // it this way reduces space in memory and adds granularity to our data for RSS values we didn't
     // capture during data acquisition.
     public void calcGauss(){  // TODO: Add a progress indicator to avoid getting a heart attack on 9th floor
+
+        int entries = tablesRss.size();
+        entries *= numCells;
+        int counter = 0;
         // For each RSS table, corresponding to each AP found during scans
         for (Map.Entry<String, TableRss> e : this.tablesRss.entrySet()){
             TableRss rTable = e.getValue();
@@ -169,6 +178,8 @@ public class ProbMassFuncs implements Serializable{
                 GaussianPair pair = rTable.getGaussian(i);
                 // Then set it in the new gaussian table
                 gTable.setGaussianPair(i, pair);
+                counter++;
+                textTraining.setText("Calculating Gaussians... (" + counter + " / " + entries + ")");
             }
             // Add the gaussian table to the gaussian tables hashmap
             this.pmf.tablesGauss.put(key, gTable);
@@ -487,9 +498,9 @@ public class ProbMassFuncs implements Serializable{
             }
             for (int i = 0; i < numCells; i++) {
                 if (p_x_prior[i] == 0) {
-                    p_x_prior[i] = 0.01;
+                    p_x_prior[i] = 0.02;
                 } else {
-                    p_x_prior[i] = p_x_prior[i] * (1 - counter * 0.01);
+                    p_x_prior[i] = p_x_prior[i] * (1 - counter * 0.02);
                 }
             }
         }

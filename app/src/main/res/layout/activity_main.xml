@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:background="#ffffff"
+            android:background="#f2f2f2"
 
             android:gravity="center"
             android:orientation="vertical"
@@ -36,7 +36,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="#ffffff"/>
+                android:background="#f2f2f2"/>
             <TextView
                 android:id="@+id/titleDEBUG"
                 android:layout_width="match_parent"
@@ -53,43 +53,10 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="#ffffff"/>
+                android:background="#f2f2f2"/>
             <!--  ====================================== -->
             <!--  ====================================== -->
 
-
-            <TextView
-                android:id="@+id/titleRSSI"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"
-                android:layout_gravity="center"
-                android:text="KNN"
-                android:textSize="20dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:orientation="horizontal"
-                android:gravity="center|top"
-                android:weightSum="1">
-
-                <Button
-                    android:id="@+id/buttonLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Where am I?" />
-                <Button
-                    android:id="@+id/buttonTest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="test" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/textKNN"
-                android:layout_width="300dp"
-                android:layout_height="28dp"
-                android:text="" />
 
             <TextView
                 android:id="@+id/titleBAYES"
@@ -115,10 +82,51 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Iterate" />
+                <Button
+                    android:id="@+id/buttonTest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1 Step" />
+                <Button
+                    android:id="@+id/buttonStartWalk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="WALK" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/textBAYES"
+                android:layout_width="300dp"
+                android:layout_height="28dp"
+                android:text="" />
+
+
+
+            <TextView
+                android:id="@+id/titleRSSI"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_gravity="center"
+                android:text="KNN"
+                android:textSize="20dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1">
+
+                <Button
+                    android:id="@+id/buttonLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Where am I?" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/textKNN"
                 android:layout_width="300dp"
                 android:layout_height="28dp"
                 android:text="" />
@@ -155,7 +163,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="#ffffff"/>
+                android:background="#f2f2f2"/>
             <TextView
                 android:id="@+id/titleTRAINING"
                 android:layout_width="match_parent"
@@ -172,7 +180,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="#ffffff"/>
+                android:background="#f2f2f2"/>
             <!--  ====================================== -->
             <!--  ====================================== -->
 
@@ -238,7 +246,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="#ffffff"/>
+                android:background="#f2f2f2"/>
             <TextView
                 android:id="@+id/titleAcc"
                 android:layout_width="match_parent"
@@ -255,7 +263,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="8dp"
-                android:background="#ffffff"/>
+                android:background="#f2f2f2"/>
             <!--  ====================================== -->
             <!--  ====================================== -->
 
@@ -263,7 +271,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="#ffffff"
+                android:background="#f2f2f2"
                 android:gravity="center|top"
                 android:orientation="horizontal" >
 
@@ -271,7 +279,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.33"
-                    android:background="#ffffff"
+                    android:background="#f2f2f2"
                     android:gravity="center"
                     android:orientation="vertical" >
 
@@ -297,7 +305,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.33"
-                    android:background="#ffffff"
+                    android:background="#f2f2f2"
                     android:gravity="center"
                     android:orientation="vertical" >
 
@@ -323,7 +331,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="0.33"
-                    android:background="#ffffff"
+                    android:background="#f2f2f2"
                     android:gravity="center"
                     android:orientation="vertical" >
 
@@ -372,7 +380,7 @@
                 android:layout_width="300dp"
                 android:layout_height="28dp"
                 android:text="" />
-        </LinearLayout>
+
 
 
         <!--  ====================================== -->
@@ -380,7 +388,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            android:background="#ffffff"/>
+            android:background="#f2f2f2"/>
         <TextView
             android:id="@+id/titleCompass"
             android:layout_width="match_parent"
@@ -397,7 +405,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            android:background="#ffffff"/>
+            android:background="#f2f2f2"/>
         <!--  ====================================== -->
         <!--  ====================================== -->
 
@@ -451,7 +459,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            android:background="#ffffff"/>
+            android:background="#f2f2f2"/>
         <TextView
             android:id="@+id/titleCONFIG"
             android:layout_width="match_parent"
@@ -468,7 +476,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="8dp"
-            android:background="#ffffff"/>
+            android:background="#f2f2f2"/>
         <!--  ====================================== -->
         <!--  ====================================== -->
 
@@ -626,7 +634,7 @@
                 android:layout_height="wrap_content"
                 android:text="&gt;" />
         </LinearLayout>
-
+        </LinearLayout>
     </TableLayout>
 </ScrollView>
 

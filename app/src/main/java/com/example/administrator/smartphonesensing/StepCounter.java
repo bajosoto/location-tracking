@@ -13,6 +13,7 @@ public class StepCounter implements StepListener{ // TODO: Instantiate in Sensor
     //private int yOffset = 0; //TODO: WE only need this if we "accumulate" steps, in different directions
     private Compass.Cardinal direction;
     private StepDetector stepdetector;
+    private boolean walkStarted = false;
 
     public StepCounter(ParticleFilter _particleFilter, Compass _compass, FloorMap _floorMap) {
         particleFilter = _particleFilter;
@@ -72,10 +73,21 @@ public class StepCounter implements StepListener{ // TODO: Instantiate in Sensor
         particleFilter.updateParticles(xOffset, yOffset);
     }
 
+    public void startWalk() {
+        walkStarted = true;
+    }
+
+    public void stopWalk() {
+        walkStarted = false;
+    }
+
+    public boolean hasWalkStarted() {
+        return walkStarted;
+    }
+
     @Override
-    public void step(long timeNs) { //TODO: Call IncStep or something from here
-        //numSteps++;
-        //stepCount.setText(TEXT_NUM_STEPS + numSteps);
-        incSteps(1);
+    public void step(long timeNs) {
+        if (walkStarted)
+            incSteps(1);
     }
 }

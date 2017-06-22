@@ -91,7 +91,8 @@ public class MainActivity extends Activity {
             buttonTrainRoomSubs,
             buttonTrainRoomAdd,
             buttonCfgCompassSubst,
-            buttonCfgCompassAdd;
+            buttonCfgCompassAdd,
+            buttonStartWalk;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -110,7 +111,7 @@ public class MainActivity extends Activity {
         initButtons();
 
         // Init PMF
-        pmf = new ProbMassFuncs(numRooms, numRSSLvl);
+        pmf = new ProbMassFuncs(numRooms, numRSSLvl, textTraining);
         if (pmf.loadPMF())
             Toast.makeText(MainActivity.this, "Loaded PMF", Toast.LENGTH_SHORT).show();
         else
@@ -200,6 +201,7 @@ public class MainActivity extends Activity {
         buttonTrainRoomAdd = (Button) findViewById(R.id.buttonTrainRoomAdd);
         buttonCfgCompassSubst = (Button) findViewById(R.id.buttonCfgCompassSubst);
         buttonCfgCompassAdd = (Button) findViewById(R.id.buttonCfgCompassAdd);
+        buttonStartWalk = (Button) findViewById(R.id.buttonStartWalk);
 
         // Create a click listener for our button.
         buttonRssi.setOnClickListener(new OnClickListener() {
@@ -391,6 +393,18 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View v) {
                 compass.decCalibration();
+            }
+        });
+        buttonStartWalk.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!stepCounter.hasWalkStarted()) {
+                    stepCounter.startWalk();
+                    buttonStartWalk.setText("STOP");
+                } else {
+                    stepCounter.stopWalk();
+                    buttonStartWalk.setText("WALK");
+                }
             }
         });
     }

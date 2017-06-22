@@ -191,7 +191,7 @@ public class ParticleFilter {
         redrawParticles(); // According to Lecture PPT, particles must start after Bayesian
     }
 
-    public void updateParticles(int xOffset, int yOffset) {  // TODO: change lit room based on particle count
+    public void updateParticles(int xOffset, int yOffset) {  // TODO: fix crash when all particles die
         int maxW = floorMap.getMapWidth();
         int maxH = floorMap.getMapHeight();
         Iterator<Particle> i = particles.iterator();
