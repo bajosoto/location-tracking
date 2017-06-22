@@ -82,7 +82,7 @@ public class ParticleFilter {
                     }
                 }
                 // Create the block
-                blockGrid[x][y] = new Block(newX1, newY1, newX2, newY2, newIsCell);
+                blockGrid[x][y] = new Block(newX1, newY1, newX2, newY2, newIsCell, x, y);
             }
         }
     }
@@ -129,6 +129,12 @@ public class ParticleFilter {
         cellGridIndex[1][18] = 0;
         cellGridIndex[0][19] = 0;
         cellGridIndex[1][19] = 2;
+
+        for (int i = 0; i < numCells; i++) {
+            int col = cellGridIndex[0][i];
+            int row = cellGridIndex[1][i];
+            blockGrid[col][row].setCellNumber(i);
+        }
     }
 
     public Block getBlockByCoord(int x, int y) {
@@ -161,6 +167,7 @@ public class ParticleFilter {
     public void initParticles() {
 
         double[] probs = new double[numCells];
+        particles.clear();
         // Get all probabilities
         for (int i = 0; i < numCells; i++) {
             probs[i] = pmf.getPxPrePost(i);
@@ -224,6 +231,8 @@ public class ParticleFilter {
             }
         }
         reviveParticles();
+        // reviveParticles sorted particles, so we can find best candidate room now
+        findRoomByParticles();
         redrawParticles();
     }
 
@@ -255,6 +264,32 @@ public class ParticleFilter {
             particles.add(new Particle(newX, newY, 0.0));
             deadParticles -= 1;
         }
+    }
+
+    // Finds the room with the largest amount of the eldest particles to light it in the map
+    public void findRoomByParticles() {
+        int[] roomByPartHisto = new int[numCells];
+        for(int i = 0; i < numTopParticles; i++){
+            Particle p = particles.get(i);
+
+            // Get particle coordinates
+            int pX = p.getX();
+            int pY = p.getY();
+
+            // Find containing block in grid
+            Block b = getBlockByCoord(pX, pY);
+
+            if(b.isCell) {
+                roomByPartHisto[b.cell] += 1;
+            }
+        }
+
+        int maxIndex = 0;
+        for(int i = 0; i < numCells; i++) {
+            if (roomByPartHisto[i] > roomByPartHisto[maxIndex])
+                maxIndex = i;
+        }
+        floorMap.updateRooms(maxIndex);
     }
 
     public void redrawParticles() {
@@ -311,14 +346,31 @@ public class ParticleFilter {
         private int y1;
         private int x2;
         private int y2;
+        private int rowInGrid;
+        private int colInGrid;
+        // Cell ID (if any)
+        private int cell = 0;
         private boolean isCell;
 
-        public Block (int _x1, int _y1, int _x2, int _y2, boolean _isCell) {
+        public Block (int _x1, int _y1, int _x2, int _y2, boolean _isCell, int _colInGrid, int _rowInGrid) {
             x1 = _x1;
             y1 = _y1;
             x2 = _x2;
             y2 = _y2;
+            colInGrid = _colInGrid;
+            rowInGrid = _rowInGrid;
             isCell = _isCell;
+        }
+
+        public void setCellNumber(int _cell) {
+            cell = _cell;
+        }
+
+        public int getCellNumber() {
+            if (isCell)
+                return cell;
+            else
+                return -1;
         }
 
         // TODO: WE won't need this one once we have a block grid. It might be removable, saving computations by storing as bool

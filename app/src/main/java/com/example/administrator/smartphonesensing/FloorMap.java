@@ -50,7 +50,7 @@ public class FloorMap {
         int y = particle.getY();
         int color = Color.RED | ((int)(0xFF * (1 - particle.getWeight())) << 8);
         paint.setColor(color);
-        canvas.drawCircle(x, y, 2, paint);  // TODO: Maybe weight can affect color or diameter of dot
+        canvas.drawCircle(x, y, 2, paint);
     }
 
     public void redraw() {
@@ -68,8 +68,6 @@ public class FloorMap {
 
     public void updateRooms(int litRoom){
         currentLitID = litRoom + 1;     // +1 since the .png files start at 1
-        clear();
-        redraw();
     }
 
     // TODO: Keeping this to copy paste the find N most likely rooms for particle birthing
