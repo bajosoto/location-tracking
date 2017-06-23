@@ -128,7 +128,7 @@ public class WifiScanner {
                         break;
 
                     case LOCATION_BAYES_NEW:
-                        pmf.resetLocation();        // Intentional missing break; statement
+                        pmf.resetLocation();        // Intentionally missing break statement
 
                     case LOCATION_BAYES_ITER:
                         scanAction = WifiScanAction.NONE;

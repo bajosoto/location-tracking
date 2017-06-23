@@ -490,12 +490,12 @@ public class ProbMassFuncs implements Serializable{
         public void adjustZeroes() {
             int counter = 0;
             for (int i = 0; i < numCells; i++) {
-                if (this.p_x_prior[i] == 0) {
+                if (this.p_x_prior[i] < 0.02) {
                     counter++;
                 }
             }
             for (int i = 0; i < numCells; i++) {
-                if (p_x_prior[i] == 0) {
+                if (p_x_prior[i] < 0.02) {
                     p_x_prior[i] = 0.02;
                 } else {
                     p_x_prior[i] = p_x_prior[i] * (1 - counter * 0.02);
