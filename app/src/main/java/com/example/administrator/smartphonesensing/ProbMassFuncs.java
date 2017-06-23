@@ -30,7 +30,6 @@ public class ProbMassFuncs implements Serializable{
     private Map<String, TableRss> tablesRss;
     private StoredPMF pmf;
     private PerceptionModel pm;
-    private TextView textTraining;
     private int numCells;
     private int numRssLevels;
     LogWriter logPmf = new LogWriter("logPmf.txt");
@@ -40,10 +39,9 @@ public class ProbMassFuncs implements Serializable{
     private Context context;
 
 
-    public ProbMassFuncs(int numCells, int numRssLevels, TextView _textTraining) {
+    public ProbMassFuncs(int numCells, int numRssLevels) {
         this.tablesRss = new HashMap<String, TableRss>();
         this.pm = new PerceptionModel(numCells, numRssLevels);
-        textTraining = _textTraining;
         this.numCells = numCells;
         this.numRssLevels = numRssLevels;
         this.root = android.os.Environment.getExternalStorageDirectory();
@@ -162,11 +160,11 @@ public class ProbMassFuncs implements Serializable{
     // Compute the gaussian distribution for all the data once we are done acquiring samples. Storing
     // it this way reduces space in memory and adds granularity to our data for RSS values we didn't
     // capture during data acquisition.
-    public void calcGauss(){  // TODO: Add a progress indicator to avoid getting a heart attack on 9th floor
+    public void calcGauss(){
 
-        int entries = tablesRss.size();
-        entries *= numCells;
-        int counter = 0;
+//        int entries = tablesRss.size();
+//        entries *= numCells;
+//        int counter = 0;
         // For each RSS table, corresponding to each AP found during scans
         for (Map.Entry<String, TableRss> e : this.tablesRss.entrySet()){
             TableRss rTable = e.getValue();
@@ -178,8 +176,8 @@ public class ProbMassFuncs implements Serializable{
                 GaussianPair pair = rTable.getGaussian(i);
                 // Then set it in the new gaussian table
                 gTable.setGaussianPair(i, pair);
-                counter++;
-                textTraining.setText("Calculating Gaussians... (" + counter + " / " + entries + ")");
+//                counter++;
+//                textTraining.setText("Calculating Gaussians... (" + counter + " / " + entries + ")");
             }
             // Add the gaussian table to the gaussian tables hashmap
             this.pmf.tablesGauss.put(key, gTable);

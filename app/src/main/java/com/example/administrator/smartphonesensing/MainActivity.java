@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
     /* The number of cells we are taking into consideration */
     private static int numRooms = 20;
     /* The number of samples per room we will be taking */
-    private static int numScans = 60;
+    private static int numScans = 40;
     /* The number of samples we take to detect movement */
     private static final int numACCSamples = 80;
     /* The number of particles we use for the particle system */
@@ -111,7 +111,7 @@ public class MainActivity extends Activity {
         initButtons();
 
         // Init PMF
-        pmf = new ProbMassFuncs(numRooms, numRSSLvl, textTraining);
+        pmf = new ProbMassFuncs(numRooms, numRSSLvl);
         if (pmf.loadPMF())
             Toast.makeText(MainActivity.this, "Loaded PMF", Toast.LENGTH_SHORT).show();
         else
