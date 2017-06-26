@@ -30,7 +30,6 @@ public class StepCounter implements StepListener{ // TODO: Instantiate in Sensor
 
     public void incSteps(int steps) {
         direction = compass.getDirection();
-        // TODO: update particles position (remember it must be a bit random!)
         int xOffset = 0;
         int yOffset = 0;
         double mapProportion = (floorMap.getMapWidth() / (4 * 13));
@@ -52,20 +51,20 @@ public class StepCounter implements StepListener{ // TODO: Instantiate in Sensor
                 xOffset -= offset;
                 break;
             case NE:
-                yOffset -= offset * 0.5;
-                xOffset += offset * 0.5;
-                break;
+                yOffset -= offset * 0.707;  // Hardcoded approximation of sqrt(2)/2
+                xOffset += offset * 0.707;  // Multiplications can be optimized, but this makes it more readable
+                break;                      // and performance impact is not noticeable
             case SE:
-                yOffset += offset * 0.5;
-                xOffset += offset * 0.5;
+                yOffset += offset * 0.707;
+                xOffset += offset * 0.707;
                 break;
             case NW:
-                yOffset -= offset * 0.5;
-                xOffset -= offset * 0.5;
+                yOffset -= offset * 0.707;
+                xOffset -= offset * 0.707;
                 break;
             case SW:
-                yOffset += offset * 0.5;
-                xOffset -= offset * 0.5;
+                yOffset += offset * 0.707;
+                xOffset -= offset * 0.707;
                 break;
             default:
                 break;
