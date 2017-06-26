@@ -29,7 +29,18 @@
                 android:layout_height="182dp"
                 android:src="@drawable/base" />
 
-
+            <TextView
+                android:id="@+id/textCompass"
+                android:layout_width="300dp"
+                android:layout_height="28dp"
+                android:gravity="center"
+                android:text="" />
+            <TextView
+                android:id="@+id/textCurrentRoom"
+                android:layout_width="300dp"
+                android:layout_height="28dp"
+                android:gravity="center"
+                android:text="" />
 
             <!--  ====================================== -->
             <!--  ====================================== -->
@@ -42,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
                 android:gravity="center"
-                android:text="DEBUG"
+                android:text="LOCALIZATION"
                 android:textSize="20dp"
                 android:background="#3f51b5"
                 android:textColor="#ffffff"/>
@@ -181,13 +192,6 @@
                 android:background="#f2f2f2"/>
             <!--  ====================================== -->
             <!--  ====================================== -->
-
-            <TextView
-                android:id="@+id/textCompass"
-                android:layout_width="300dp"
-                android:layout_height="28dp"
-                android:gravity="center"
-                android:text="" />
 
             <TextView
                 android:id="@+id/titleCfgCompass"

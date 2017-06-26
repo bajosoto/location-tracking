@@ -69,7 +69,8 @@ public class MainActivity extends Activity {
             titleTrainRoomNum,
             textTraining,
             textCompass,
-            titleCfgCompassNum;
+            titleCfgCompassNum,
+            textCurrentRoom;
 
     Button buttonRssi,
             buttonLocation,
@@ -121,13 +122,13 @@ public class MainActivity extends Activity {
         floorMap3D = new FloorMap(this, this); //, numRoomsLit);
 
         // Init the particle filter
-        particleFilter = new ParticleFilter(numParticles, numRooms, numTopParticles, floorMap3D, pmf);
+        particleFilter = new ParticleFilter(numParticles, numRooms, numTopParticles, floorMap3D, pmf, textCurrentRoom);
 
-        // Init sensors TODO: Create Accelerometer class and move all trash code there
+        // Init sensors
         compass = new Compass(textCompass, titleCfgCompassNum);
         movement = new Movement(currentX, currentY, currentZ, textAcc, numACCSamples);
         stepCounter = new StepCounter(particleFilter, compass, floorMap3D);
-        sensors = new Sensors(this, compass, movement, stepCounter); //TODO: Probably add stepCounter here when it's implemented
+        sensors = new Sensors(this, compass, movement, stepCounter);
         sensors.start();
 
 
@@ -167,6 +168,7 @@ public class MainActivity extends Activity {
         titleTrainRoomNum = (TextView) findViewById(R.id.titleTrainRoomNum);
         textTraining = (TextView) findViewById(R.id.textTraining);
         textCompass = (TextView) findViewById(R.id.textCompass);
+        textCurrentRoom = (TextView) findViewById(R.id.textCurrentRoom);
         titleCfgCompassNum = (TextView) findViewById(R.id.titleCfgCompassNum);
 
         // Set initial text for text views

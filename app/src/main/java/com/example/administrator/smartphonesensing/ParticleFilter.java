@@ -1,5 +1,7 @@
 package com.example.administrator.smartphonesensing;
 
+import android.widget.TextView;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -17,17 +19,20 @@ public class ParticleFilter {
     private int numParticles;
     private int numCells;
     private int numTopParticles;
-    private int deadParticles; //TODO: I think it should be WifiScanner who revives particles (add particlefilter to scanner)
+    private int deadParticles;
     private FloorMap floorMap;
+    private TextView textCurrentRoom;
     ProbMassFuncs pmf;
     private Block[][] blockGrid;
     private int[][] cellGridIndex;
     private List<Particle> particles = new Vector();
 
-    public ParticleFilter (int _numParticles, int _numCells, int _numTopParticles, FloorMap _floorMap, ProbMassFuncs _pmf) {
+    public ParticleFilter (int _numParticles, int _numCells, int _numTopParticles, FloorMap _floorMap,
+                           ProbMassFuncs _pmf, TextView _textCurrentRoom) {
         numParticles = _numParticles;
         numCells = _numCells;
         numTopParticles = _numTopParticles;
+        textCurrentRoom = _textCurrentRoom;
         deadParticles = 0;
         floorMap = _floorMap;
         pmf = _pmf;
@@ -46,7 +51,7 @@ public class ParticleFilter {
         for (int x = 0; x < NUM_COLS; x++) {
             for (int y = 0; y < NUM_ROWS; y++) {
                 int newX1 = x * (maxWidth / NUM_COLS);
-                int newX2 = (x + 1) * (maxWidth / NUM_COLS);  // TODO: Can be optimized once it's working
+                int newX2 = (x + 1) * (maxWidth / NUM_COLS);  // TODO: Can be optimized
                 int newY1;
                 int newY2;
                 boolean newIsCell = false;
@@ -137,6 +142,7 @@ public class ParticleFilter {
         }
     }
 
+    // Acquire the Block containing the given x, y coordinates
     public Block getBlockByCoord(int x, int y) {
         int maxWidth = floorMap.getMapWidth();
         int maxHeight = floorMap.getMapHeight();
@@ -164,6 +170,8 @@ public class ParticleFilter {
         return cellGridIndex[1][cell];
     }
 
+    // Initialize the particles. The amount of particles created within each block corresponds
+    // proportionally to the probability calculated by Bayesian
     public void initParticles() {
 
         double[] probs = new double[numCells];
@@ -188,7 +196,7 @@ public class ParticleFilter {
                 particles.add(new Particle(randX, randY, probs[cell]));
             }
         }
-        redrawParticles(); // According to Lecture PPT, particles must start after Bayesian
+        redrawParticles();
     }
 
     public void updateParticles(int xOffset, int yOffset) {  // TODO: fix crash when all particles die
@@ -231,11 +239,12 @@ public class ParticleFilter {
             }
         }
         reviveParticles();
-        // reviveParticles sorted particles, so we can find best candidate room now
-         findRoomByParticles();
+        // reviveParticles sorted the particles, so we can find best candidate room now
+        findRoomByParticles();
         redrawParticles();
     }
 
+    // Create an amount of new particles equal to the particles that died, next to randomly chosen eldest particles
     public void reviveParticles() {
         // Sort particles
         Collections.sort(particles, new Comparator<Particle>() {
@@ -266,7 +275,7 @@ public class ParticleFilter {
         }
     }
 
-    // Finds the room with the largest amount of the eldest particles to light it in the map
+    // Finds the room with the largest amount of the eldest particles to light it in the map and indicate in TextView
     public void findRoomByParticles() {
         int[] roomByPartHisto = new int[numCells];
         for(int i = 0; i < numTopParticles; i++){
@@ -289,6 +298,7 @@ public class ParticleFilter {
             if (roomByPartHisto[i] > roomByPartHisto[maxIndex])
                 maxIndex = i;
         }
+        textCurrentRoom.setText("You are in room " + (maxIndex + 1));
         floorMap.updateRooms(maxIndex);
     }
 
