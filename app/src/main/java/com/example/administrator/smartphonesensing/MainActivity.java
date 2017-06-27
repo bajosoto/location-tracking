@@ -213,7 +213,7 @@ public class MainActivity extends Activity {
         buttonCfgStrideAdd = (Button) findViewById(R.id.buttonCfgStrideAdd);
         buttonStartWalk = (Button) findViewById(R.id.buttonStartWalk);
 
-        // Create a click listener for our button.
+        // Create click listeners for our buttons
         buttonRssi.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -221,7 +221,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonLocation.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -239,7 +238,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonBayesIterate.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -258,7 +256,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonWalk.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -267,7 +264,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonStand.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -276,7 +272,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonWalkOrStand.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -285,7 +280,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgApSubst.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -296,7 +290,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgApAdd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -305,7 +298,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgRssLvlSubst.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -316,7 +308,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgRssLvlAdd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -325,7 +316,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgRoomsSubst.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -336,7 +326,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgRoomsAdd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -345,7 +334,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgScansSubst.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -356,7 +344,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgScansAdd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -365,7 +352,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonTrainRoomSubs.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -374,7 +360,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonTrainRoomAdd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -383,7 +368,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgStrideSubst.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -392,7 +376,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonCfgStrideAdd.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -401,7 +384,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        // Create a click listener for our button.
         buttonTest.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

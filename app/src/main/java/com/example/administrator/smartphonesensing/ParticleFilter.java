@@ -41,7 +41,6 @@ public class ParticleFilter {
         cellGridIndex = new int[2][numCells];
         initBlocks();
         initGridIndexes();
-        // initParticles(); Particles are init by new bayesianin WifiScanner
     }
 
     private void initBlocks() {
@@ -69,7 +68,7 @@ public class ParticleFilter {
                         newY1 = (int) (maxHeight * 8.2 / 14.3); // TODO: Same here
                         newY2 = maxHeight;
                         break;
-                    default:                // Just to stop the compiler from yelling at me. This is unreachable
+                    default:                // Just to remove compiler warning. This is unreachable
                         newY1 = 0;
                         newY2 = 0;
                         break;

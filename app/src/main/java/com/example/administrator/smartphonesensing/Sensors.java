@@ -37,6 +37,7 @@ public class Sensors implements SensorEventListener{
         sensorManager.unregisterListener(this);
     }
 
+    // Handle all sensor data here
     @Override
     public void onSensorChanged(SensorEvent event) {
         synchronized (this) {

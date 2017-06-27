@@ -87,7 +87,7 @@ public class WifiScanner {
                 Collections.sort(scanResults, new Comparator<ScanResult>() {
                     @Override
                     public int compare(ScanResult lhs, ScanResult rhs) {
-                        // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+                        // -1 - less than, 1 - greater than, 0 - equal, all inverted for descending
                         return lhs.level > rhs.level ? -1 : (lhs.level < rhs.level ) ? 1 : 0;
                     }
                 });
@@ -129,6 +129,7 @@ public class WifiScanner {
 
                     case LOCATION_BAYES_NEW:
                         pmf.resetLocation();        // Intentionally missing break statement
+                        /*Fall Through*/
 
                     case LOCATION_BAYES_ITER:
                         scanAction = WifiScanAction.NONE;

@@ -42,7 +42,7 @@ public class Compass {
         this.directionTextView.setText("Compass initialized");
         this.calTextView = cal;
         this.calTextView.setText(" " + calibration + " ");
-        direction = Cardinal.N; // Just initializing to anything so compiler doesn't yell at me
+        direction = Cardinal.N; // default initialization
     }
 
     public Cardinal getDirection() {

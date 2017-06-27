@@ -38,7 +38,7 @@ public class StepDetector {
         currentAcc[1] = y;
         currentAcc[2] = z;
 
-        // First step is to update our guess of where the global z vector is.
+        // Update our guess of where the global z vector is.
         accCounter++;
         accX[accCounter % ACCEL_WIN_SIZE] = currentAcc[0];
         accY[accCounter % ACCEL_WIN_SIZE] = currentAcc[1];
@@ -55,7 +55,7 @@ public class StepDetector {
         worldZ[1] = worldZ[1] / normalization_factor;
         worldZ[2] = worldZ[2] / normalization_factor;
 
-        // Next step is to figure out the component of the current acceleration
+        // Figure out the component of the current acceleration
         // in the direction of world_z and subtract gravity's contribution
         float currentZ = dot(worldZ, currentAcc) - normalization_factor;
         velCounter++;
