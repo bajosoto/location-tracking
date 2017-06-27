@@ -69,41 +69,4 @@ public class FloorMap {
     public void updateRooms(int litRoom){
         currentLitID = litRoom + 1;     // +1 since the .png files start at 1
     }
-
-    // TODO: Keeping this to copy paste the find N most likely rooms for particle birthing
-//    public void updateRooms(ProbMassFuncs pmf, int numRooms){
-//        double[] probs = new double[numRooms];
-//        //int[] newAlpha = new int[numRoomsLit];
-//        //newAlpha[0] = 255;
-//
-//        // get all probabilities
-//        for (int i = 0; i < numRooms; i++) {
-//            probs[i] = pmf.getPxPrePost(i);
-//        }
-//
-//        // Find room with highest probability
-//        //for(int candidate = 1; candidate < numRoomsLit; candidate++) {
-//            int maxRoom = 0;
-//            double maxRoomProb = 0.0;
-//            for (int room = 0; room < numRooms; room++) {
-//                if (probs[room] > maxRoomProb) {
-//                    maxRoom = room;
-//                    maxRoomProb = probs[room];
-//                }
-//            }
-//            //probs[maxRoom] = 0.0;
-//
-//            //int index = numRooms - 1 - i;
-//            //newAlpha[candidate] = (int)(255.0 * maxRoomProb);
-//            //this.layers[candidate] = ContextCompat.getDrawable(this.context, layerID[maxRoom]);
-//        //}
-//
-////        this.layerDrawable = new LayerDrawable(layers);
-////        this.theMap.setImageDrawable(layerDrawable);
-////
-////        for (int candidate = 0; candidate < numRoomsLit; candidate++) {
-////            this.layerDrawable.getDrawable(candidate).setAlpha(newAlpha[candidate]);
-////        }
-
-//    }
 }

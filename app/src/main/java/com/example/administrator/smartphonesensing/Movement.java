@@ -12,7 +12,7 @@ import java.util.Vector;
  * Created by Sergio on 6/21/17.
  */
 
-// TODO: Serialize movement training data. It might be a pain in the ass since we're sending it TextViews from main Activity
+// TODO: Serialize movement training data.
 
 public class Movement {
 
@@ -106,7 +106,7 @@ public class Movement {
                     }
                 });
 
-                // Calculate peak to peak values  TODO: Log p2p values. Sometimes it's detecting walking when standing...
+                // Calculate peak to peak values
                 Float newX = Math.abs(xResults.get(0) - xResults.get(xResults.size() - 1));
                 Float newY = Math.abs(yResults.get(0) - yResults.get(yResults.size() - 1));
                 Float newZ = Math.abs(zResults.get(0) - zResults.get(zResults.size() - 1));
@@ -115,7 +115,7 @@ public class Movement {
                 ACCPoint newAccPoint = new ACCPoint(accelAction.toString(), newX, newY, newZ);
 
                 // TODO: Take this outside the block (e.g. always detect walking or standing) Need to guarantee data  available (see serialize TODO)
-                // TODO: We need this in order to know when to update the particle filter
+                // We need this in order to know when to update the particle filter
                 if (accelAction == AccelScanAction.DETECT_WALK) {
                     // Do KNN and update label
                     textAcc.setText("You are " + KNN.knn(newAccPoint, accPoints));

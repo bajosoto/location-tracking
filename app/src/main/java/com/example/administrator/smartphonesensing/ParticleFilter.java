@@ -383,7 +383,7 @@ public class ParticleFilter {
                 return -1;
         }
 
-        // TODO: WE won't need this one once we have a block grid. It might be removable, saving computations by storing as bool
+        // Not needed any more. isCell stored instead as boolean to save computations
         public boolean isValidCell (int x, int y) {
             //return ((x >= x1) && (x <= x2)) && ((y >= y1) && (y <= y2));
             return isCell;

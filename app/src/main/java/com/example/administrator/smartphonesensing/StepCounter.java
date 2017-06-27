@@ -10,7 +10,7 @@ public class StepCounter implements StepListener{
     private Compass compass;
     private FloorMap floorMap;
     //private int xOffset = 0;
-    //private int yOffset = 0; //TODO: WE only need this if we "accumulate" steps, in different directions
+    //private int yOffset = 0; // We only need this if we "accumulate" steps, in different directions
     private Compass.Cardinal direction;
     private StepDetector stepdetector;
     private int numStride;
