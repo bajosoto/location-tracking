@@ -23,20 +23,19 @@
             android:orientation="vertical"
             android:paddingTop="20dp" >
 
+            <TextView
+                android:id="@+id/textCurrentRoom"
+                android:layout_width="300dp"
+                android:layout_height="28dp"
+                android:gravity="center"
+                android:text="" />
             <ImageView
                 android:id="@+id/the3dMap"
                 android:layout_width="wrap_content"
                 android:layout_height="182dp"
                 android:src="@drawable/base" />
-
             <TextView
                 android:id="@+id/textCompass"
-                android:layout_width="300dp"
-                android:layout_height="28dp"
-                android:gravity="center"
-                android:text="" />
-            <TextView
-                android:id="@+id/textCurrentRoom"
                 android:layout_width="300dp"
                 android:layout_height="28dp"
                 android:gravity="center"
@@ -133,7 +132,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Where am I?" />
-
             </LinearLayout>
 
             <TextView
@@ -141,31 +139,6 @@
                 android:layout_width="300dp"
                 android:layout_height="28dp"
                 android:text="" />
-
-            <!--<LinearLayout-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="62dp"-->
-                <!--android:orientation="horizontal"-->
-                <!--android:gravity="center|top"-->
-                <!--android:weightSum="1">-->
-
-                <!--<TextView-->
-                    <!--android:id="@+id/roomName"-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="30dp"-->
-                    <!--android:layout_gravity="center"-->
-                    <!--android:text="Room Name: "-->
-                    <!--android:textSize="20dp" />-->
-
-                <!--<EditText-->
-                    <!--android:id="@+id/tbRoomName"-->
-                    <!--android:layout_width="167dp"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_gravity="center"-->
-                    <!--android:ems="10"-->
-                    <!--android:inputType="textPersonName"-->
-                    <!--android:text="1" />-->
-            <!--</LinearLayout>-->
 
             <!--  ====================================== -->
             <!--  ====================================== -->
@@ -481,44 +454,83 @@
         <!--  ====================================== -->
 
 
-        <TextView
-            android:id="@+id/titleCfgAp"
-            android:layout_width="wrap_content"
-            android:layout_height="15dp"
-            android:gravity="center"
-            android:text="ACCESS POINTS"
-            android:textSize="12dp" />
+            <TextView
+                android:id="@+id/titleCfgStride"
+                android:layout_width="wrap_content"
+                android:layout_height="15dp"
+                android:gravity="center"
+                android:text="STRIDE LENGTH"
+                android:textSize="12dp" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="36dp"
-            android:orientation="horizontal"
-            android:gravity="center|top"
-            android:weightSum="1"
-            android:textSize="20dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1"
+                android:textSize="20dp">
 
-            <Button
-                android:id="@+id/buttonCfgApSubst"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:text="&lt;" />
+                <Button
+                    android:id="@+id/buttonCfgStrideSubst"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&lt;" />
+
+                <TextView
+                    android:id="@+id/titleCfgStrideNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text=" 99 "
+                    android:textSize="20dp" />
+
+                <Button
+                    android:id="@+id/buttonCfgStrideAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&gt;" />
+            </LinearLayout>
+
+            <!--  ====================================== -->
 
             <TextView
-                android:id="@+id/titleCfgApNum"
+                android:id="@+id/titleCfgAp"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text=" 99 "
-                android:textSize="20dp" />
+                android:layout_height="15dp"
+                android:gravity="center"
+                android:text="ACCESS POINTS"
+                android:textSize="12dp" />
 
-            <Button
-                android:id="@+id/buttonCfgApAdd"
-                android:layout_width="40dp"
-                android:layout_height="wrap_content"
-                android:text="&gt;" />
-        </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center|top"
+                android:weightSum="1"
+                android:textSize="20dp">
 
-        <!--  ====================================== -->
+                <Button
+                    android:id="@+id/buttonCfgApSubst"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&lt;" />
+
+                <TextView
+                    android:id="@+id/titleCfgApNum"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text=" 99 "
+                    android:textSize="20dp" />
+
+                <Button
+                    android:id="@+id/buttonCfgApAdd"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:text="&gt;" />
+            </LinearLayout>
+
+            <!--  ====================================== -->
 
         <TextView
             android:id="@+id/titleCfgRssLvl"

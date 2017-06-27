@@ -4,7 +4,7 @@ package com.example.administrator.smartphonesensing;
  * Created by Sergio on 6/22/17.
  */
 
-public class StepCounter implements StepListener{ // TODO: Instantiate in Sensors class
+public class StepCounter implements StepListener{
 
     private ParticleFilter particleFilter;
     private Compass compass;
@@ -13,12 +13,14 @@ public class StepCounter implements StepListener{ // TODO: Instantiate in Sensor
     //private int yOffset = 0; //TODO: WE only need this if we "accumulate" steps, in different directions
     private Compass.Cardinal direction;
     private StepDetector stepdetector;
+    private int numStride;
     private boolean walkStarted = false;
 
-    public StepCounter(ParticleFilter _particleFilter, Compass _compass, FloorMap _floorMap) {
+    public StepCounter(ParticleFilter _particleFilter, Compass _compass, FloorMap _floorMap, int _numStride) {
         particleFilter = _particleFilter;
         floorMap = _floorMap;
         compass = _compass;
+        numStride = _numStride;
         direction = Compass.Cardinal.N; // Just random init
         stepdetector = new StepDetector();
         stepdetector.registerListener(this);
@@ -35,7 +37,8 @@ public class StepCounter implements StepListener{ // TODO: Instantiate in Sensor
         double mapProportion = (floorMap.getMapWidth() / (4 * 13));
 
         // My stride was about .48m
-        int offset = (int)((0.48 * steps) * mapProportion);
+        double stride = numStride / 100.0;
+        int offset = (int)((stride * steps) * mapProportion);
 
         switch (direction) {
             case N:
@@ -88,5 +91,19 @@ public class StepCounter implements StepListener{ // TODO: Instantiate in Sensor
     public void step(long timeNs) {
         if (walkStarted)
             incSteps(1);
+    }
+
+    public int incStride() {
+        if (numStride < 100){
+            numStride += 1;
+        }
+        return numStride;
+    }
+
+    public int decStride() {
+        if (numStride > 0){
+            numStride -= 1;
+        }
+        return numStride;
     }
 }

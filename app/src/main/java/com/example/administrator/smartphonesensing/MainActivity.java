@@ -38,6 +38,8 @@ public class MainActivity extends Activity {
     private static final int numParticles = 1000;
     /* The number of particles selected for birthing */
     private static final int numTopParticles = 200;
+    /* Stride length in cm */
+    private static final int numStride = 48;
 
 
     ProbMassFuncs pmf;
@@ -53,7 +55,6 @@ public class MainActivity extends Activity {
     private static final int REQUEST_CODE_WIFI_PERMISSION = 0;
 
     private WifiManager wifiManager;
-    private WifiInfo wifiInfo;
 
     TextView currentX,
             currentY,
@@ -66,6 +67,7 @@ public class MainActivity extends Activity {
             titleCfgRssLvlNum,
             titleCfgRoomsNum,
             titleCfgScansNum,
+            titleCfgStrideNum,
             titleTrainRoomNum,
             textTraining,
             textCompass,
@@ -93,6 +95,8 @@ public class MainActivity extends Activity {
             buttonTrainRoomAdd,
             buttonCfgCompassSubst,
             buttonCfgCompassAdd,
+            buttonCfgStrideSubst,
+            buttonCfgStrideAdd,
             buttonStartWalk;
 
     @Override
@@ -127,7 +131,7 @@ public class MainActivity extends Activity {
         // Init sensors
         compass = new Compass(textCompass, titleCfgCompassNum);
         movement = new Movement(currentX, currentY, currentZ, textAcc, numACCSamples);
-        stepCounter = new StepCounter(particleFilter, compass, floorMap3D);
+        stepCounter = new StepCounter(particleFilter, compass, floorMap3D, numStride);
         sensors = new Sensors(this, compass, movement, stepCounter);
         sensors.start();
 
@@ -170,12 +174,14 @@ public class MainActivity extends Activity {
         textCompass = (TextView) findViewById(R.id.textCompass);
         textCurrentRoom = (TextView) findViewById(R.id.textCurrentRoom);
         titleCfgCompassNum = (TextView) findViewById(R.id.titleCfgCompassNum);
+        titleCfgStrideNum = (TextView) findViewById(R.id.titleCfgStrideNum);
 
         // Set initial text for text views
         titleCfgApNum.setText(" " + numSSIDs + " ");
         titleCfgRssLvlNum.setText(" " + numRSSLvl + " ");
         titleCfgRoomsNum.setText(" " + numRooms + " ");
         titleCfgScansNum.setText(" " + numScans + " ");
+        titleCfgStrideNum.setText(" " + numStride + " ");
         titleTrainRoomNum.setText(" 1 ");       // Safe. trainRoom is init to 0 in WifiScanner
     }
 
@@ -203,6 +209,8 @@ public class MainActivity extends Activity {
         buttonTrainRoomAdd = (Button) findViewById(R.id.buttonTrainRoomAdd);
         buttonCfgCompassSubst = (Button) findViewById(R.id.buttonCfgCompassSubst);
         buttonCfgCompassAdd = (Button) findViewById(R.id.buttonCfgCompassAdd);
+        buttonCfgStrideSubst = (Button) findViewById(R.id.buttonCfgStrideSubst);
+        buttonCfgStrideAdd = (Button) findViewById(R.id.buttonCfgStrideAdd);
         buttonStartWalk = (Button) findViewById(R.id.buttonStartWalk);
 
         // Create a click listener for our button.
@@ -372,6 +380,24 @@ public class MainActivity extends Activity {
             public void onClick(View v) {
                 int room = wifiScanner.incTrainRoom();
                 titleTrainRoomNum.setText(" " + (room + 1) + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgStrideSubst.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int stride = stepCounter.decStride();
+                titleCfgStrideNum.setText(" " + (stride) + " ");
+            }
+        });
+
+        // Create a click listener for our button.
+        buttonCfgStrideAdd.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int stride = stepCounter.incStride();
+                titleCfgStrideNum.setText(" " + (stride) + " ");
             }
         });
 
